@@ -1,5 +1,5 @@
 ======================================
-Welcome to python-binance-chain v0.0.1
+Welcome to python-binance-chain v0.0.2
 ======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg
@@ -28,13 +28,17 @@ Features
 --------
 
 - Implementation of HTTP endpoints
+- Implementation of HTTP RPC endpoints
+- Implementation of Websockets
 - Response exception handling
 
 TODO
 ----
 
 - Implement order broadcast
-- Implement websockets etc
+- Implement wallet creation
+- Implement RPC websockets etc
+- Add generated docs and tests
 
 Quick Start
 -----------
@@ -46,6 +50,7 @@ Quick Start
 .. code:: python
 
     from binance_chain.client import Client, KlineInterval
+
     client = Client()
 
     # connect client to different URL
@@ -106,6 +111,80 @@ Quick Start
     transaction = client.get_transaction('95DD6921370D74D0459590268B439F3DD49F6B1D090121AFE4B2183C040236F3')
 
 
+Websockets
+----------
+
+.. code:: python
+
+    import asyncio
+
+    from binance_chain.websockets import BinanceChainSocketManager
+
+    from binance_chain.client import Client
+
+    address = 'tbnb...'
+
+
+    async def main():
+        global loop
+
+        async def handle_evt(msg):
+            """Function to handle websocket messages
+            """
+            print(msg)
+
+        bcsm = await BinanceChainSocketManager.create(loop, handle_evt, address2)
+
+        # subscribe to relevant endpoints
+        await bcsm.subscribe_orders(address)
+        await bcsm.subscribe_market_depth(["FCT-B60_BNB", "0KI-0AF_BNB"])
+        await bcsm.subscribe_market_delta(["FCT-B60_BNB", "0KI-0AF_BNB"])
+        await bcsm.subscribe_trades(["FCT-B60_BNB", "0KI-0AF_BNB"])
+        await bcsm.subscribe_ticker(["FCT-B60_BNB", "0KI-0AF_BNB"])
+
+        while True:
+            print("sleeping to keep loop open")
+            await asyncio.sleep(20, loop=loop)
+
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
+
+Node RPC HTTP
+-------------
+
+.. code:: python
+
+    from binance_chain.client import Client, Wallet, PeerType
+    from binance_chain.node_rpc import HttpRpcClient
+
+    client = Client()
+
+    # get a peer that support node requests
+    peers = client.get_peers(peer_type=PeerType.NODE)
+    listen_addr = peers[0]['listen_addr']
+
+    # connect to this peer
+    rpc_client = HttpRpcClient(listen_addr)
+
+
+    abci_info = rpc_client.get_abci_info()
+    consensus_state = rpc_client.dump_consensus_state()
+    genesis = rpc_client.get_genesis()
+    net_info = rpc_client.get_net_info()
+    num_unconfirmed_txs = rpc_client.get_num_unconfirmed_txs()
+    status = rpc_client.get_status()
+    health = rpc_client.get_health()
+    unconfirmed_txs = rpc_client.get_unconfirmed_txs()
+    validators = rpc_client.get_validators()
+
+    block_height = rpc_client.get_block_height(10)
+
+
+
 Donate
 ------
 
@@ -121,7 +200,7 @@ Other Exchanges
 
 If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
 
-If you use `Kucoin <https://www.kucoin.com/#/?r=E42cWB>`_ check out my `python-kucoin <https://github.com/sammchardy/python-kucoin>`_ library.
+If you use `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_ check out my `python-kucoin <https://github.com/sammchardy/python-kucoin>`_ library.
 
 If you use `Allcoin <https://www.allcoin.com/Account/RegisterByPhoneNumber/?InviteCode=MTQ2OTk4MDgwMDEzNDczMQ==>`_ check out my `python-allucoin <https://github.com/sammchardy/python-allcoin>`_ library.
 

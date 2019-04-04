@@ -22,3 +22,21 @@ class BinanceChainAPIException(Exception):
 
 class BinanceChainRequestException(Exception):
     pass
+
+
+class BinanceChainRPCException(Exception):
+    def __init__(self, response):
+        self.code = 0
+        try:
+            json_res = json.loads(response.content)
+        except ValueError:
+            self.message = 'Invalid JSON error message from Binance Chain: {}'.format(response.text)
+        else:
+            self.code = json_res['error']['code']
+            self.message = json_res['error']['message']
+        self.status_code = response.status_code
+        self.response = response
+        self.request = getattr(response, 'request', None)
+
+    def __str__(self):  # pragma: no cover
+        return 'RPCError(code=%s): %s' % (self.message, )

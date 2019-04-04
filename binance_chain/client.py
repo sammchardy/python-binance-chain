@@ -60,12 +60,39 @@ class TransactionType(str, Enum):
     VOTE = 'VOTE'
 
 
-class Client(object):
+class PeerType(str, Enum):
+    NODE = 'node'
+    WEBSOCKET = 'ws'
+
+
+class Wallet:
+
+    def __init__(self, address, private_key):
+
+        self._address = address
+        self._private_key = private_key
+        self._public_key, _ = privtopub(self._private_key.encode())
+
+    @property
+    def address(self):
+        return self._address
+
+    @property
+    def private_key(self):
+        return self._private_key
+
+    @property
+    def public_key(self):
+        return self._public_key
+
+
+class Client:
 
     TESTNET_API_URL = 'https://testnet-dex.binance.org'
     API_VERSION = 'v1'
 
-    def __init__(self, api_url: Optional[str] = None, requests_params: Optional[Dict] = None):
+    def __init__(self, api_url: Optional[str] = None, wallet: Optional[Wallet] = None,
+                 requests_params: Optional[Dict] = None):
         """Binance Chain API Client constructor
 
         https://binance-chain.github.io/api-reference/dex-api/paths.html
@@ -81,6 +108,7 @@ class Client(object):
 
         self.API_URL = api_url or self.TESTNET_API_URL
 
+        self._wallet = wallet
         self._requests_params = requests_params
         self.session = self._init_session()
 
@@ -118,6 +146,9 @@ class Client(object):
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
             del(kwargs['data'])
+
+        if method == 'post':
+            kwargs['headers']['content-type'] = 'text/plain'
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
@@ -209,7 +240,7 @@ class Client(object):
         """
         return self._get("validators")
 
-    def get_peers(self):
+    def get_peers(self, peer_type: Optional[PeerType] = None):
         """Gets the list of network peers
 
         https://binance-chain.github.io/api-reference/dex-api/paths.html#apiv1peers
@@ -221,7 +252,11 @@ class Client(object):
         :return: API Response
 
         """
-        return self._get("peers")
+        peers = self._get("peers")
+        if peer_type:
+            peers = [p for p in peers if peer_type in p['capabilities']]
+
+        return peers
 
     def get_account(self, address: str):
         """Gets account metadata for an address

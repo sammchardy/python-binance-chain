@@ -1,1 +1,3 @@
-requests==2.21.0
+requests
+jsonrpcclient[requests,websockets]
+websockets
