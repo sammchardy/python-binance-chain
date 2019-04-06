@@ -349,7 +349,3 @@ class HttpRpcClient(RpcClient):
 
 class WebsocketRpcClient(RpcClient):
     pass
-
-# /subscribe?event=_
-# /tx?hash=_&prove=_
-# /unsubscribe?event=_
