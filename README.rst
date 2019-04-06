@@ -14,7 +14,7 @@ Welcome to python-binance-chain v0.0.2
 .. image:: https://img.shields.io/pypi/pyversions/python-binance-chain.svg
     :target: https://pypi.python.org/pypi/python-binance-chain
 
-This is an unofficial Python wrapper for the `Binance Chain HTTP API <https://binance-chain.github.io/api-reference/dex-api/paths.html>`_. I am in no way affiliated with Binance, use at your own risk.
+This is an unofficial Python wrapper for the `Binance Chain API <https://binance-chain.github.io/api-reference/dex-api/paths.html>`_. I am in no way affiliated with Binance, use at your own risk.
 
 
 PyPi
@@ -30,6 +30,7 @@ Features
 - Implementation of HTTP endpoints
 - Implementation of HTTP RPC endpoints
 - Implementation of Websockets
+- Implementation of Broadcast Transactions
 - Response exception handling
 
 TODO
