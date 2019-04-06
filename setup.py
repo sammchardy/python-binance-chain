@@ -23,7 +23,7 @@ def find_version(*file_paths):
 
 def install_requires():
 
-    requires = ['requests', 'websockets', 'jsonrpcclient[requests,websockets]']
+    requires = ['requests', 'websockets', 'jsonrpcclient[requests,websockets]', 'secp256k1', 'protobuf']
     return requires
 
 

@@ -35,7 +35,6 @@ Features
 TODO
 ----
 
-- Implement order broadcast
 - Implement wallet creation
 - Implement RPC websockets etc
 - Add generated docs and tests
@@ -111,6 +110,67 @@ Quick Start
     transaction = client.get_transaction('95DD6921370D74D0459590268B439F3DD49F6B1D090121AFE4B2183C040236F3')
 
 
+Broadcast Messages
+------------------
+
+**Place Order**
+
+.. code:: python
+
+    # construct the message
+    new_order_msg = NewOrderMsg(
+        symbol="ANN-457_BNB",
+        time_in_force=TimeInForce.GTE,
+        order_type=OrderType.LIMIT,
+        side=OrderSide.BUY,
+        price=Decimal(0.000396000),
+        quantity=Decimal(12)
+    )
+    # then broadcast it
+    res = client.broadcast_msg(new_order_msg, sync=True)
+
+
+**Cancel Order**
+
+.. code:: python
+
+    # construct the message
+    cancel_order_msg = CancelOrderMsg(
+        order_id="09F8B32D33CBE2B546088620CBEBC1FF80F9BE001ACF42762B0BBFF0A729CE3",
+        symbol='ANN-457_BNB',
+    )
+    # then broadcast it
+    res = client.broadcast_msg(cancel_order_msg, sync=True)
+
+
+**Freeze Tokens**
+
+    # construct the message
+    freeze_msg = FreezeMsg(
+        symbol='BNB',
+        amount=Decimal(10)
+    )
+    # then broadcast it
+    res = client.broadcast_msg(freeze_msg, sync=True)
+
+
+**Unfreeze Tokens**
+
+    # construct the message
+    unfreeze_msg = UnFreezeMsg(
+        symbol='BNB',
+        amount=Decimal(10)
+    )
+    # then broadcast it
+    res = client.broadcast_msg(unfreeze_msg, sync=True)
+
+
+**Transfer Tokens**
+
+coming
+
+
+
 Websockets
 ----------
 
@@ -184,7 +244,6 @@ Node RPC HTTP
     block_height = rpc_client.get_block_height(10)
 
 
-
 Donate
 ------
 
@@ -194,6 +253,12 @@ If this library helped you out feel free to donate.
 - NEO: AVJB4ZgN7VgSUtArCt94y7ZYT6d5NDfpBo
 - LTC: LPC5vw9ajR1YndE1hYVeo3kJ9LdHjcRCUZ
 - BTC: 1Dknp6L6oRZrHDECRedihPzx2sSfmvEBys
+
+Thanks
+------
+
+`Sipa <https://github.com/sipa/bech32>` for python reference implementation for Bech32 and segwit addresses
+
 
 Other Exchanges
 ---------------

@@ -1,3 +1,5 @@
 requests
 jsonrpcclient[requests,websockets]
 websockets
+secp256k1
+protobuf
