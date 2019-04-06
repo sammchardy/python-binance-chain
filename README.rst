@@ -1,5 +1,5 @@
 ======================================
-Welcome to python-binance-chain v0.0.2
+Welcome to python-binance-chain v0.0.3
 ======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg
@@ -38,7 +38,6 @@ TODO
 
 - Implement wallet creation
 - Implement RPC websockets etc
-- Add generated docs and tests
 
 Quick Start
 -----------
@@ -121,6 +120,10 @@ Broadcast Messages
 
 .. code:: python
 
+    from binance_chain.client import Client, NewOrderMsg
+
+    client = Client()
+
     # construct the message
     new_order_msg = NewOrderMsg(
         symbol="ANN-457_BNB",
@@ -138,6 +141,10 @@ Broadcast Messages
 
 .. code:: python
 
+    from binance_chain.client import Client, CancelOrderMsg
+
+    client = Client()
+
     # construct the message
     cancel_order_msg = CancelOrderMsg(
         order_id="09F8B32D33CBE2B546088620CBEBC1FF80F9BE001ACF42762B0BBFF0A729CE3",
@@ -149,6 +156,10 @@ Broadcast Messages
 
 **Freeze Tokens**
 
+    from binance_chain.client import Client, FreezeMsg
+
+    client = Client()
+
     # construct the message
     freeze_msg = FreezeMsg(
         symbol='BNB',
@@ -159,6 +170,10 @@ Broadcast Messages
 
 
 **Unfreeze Tokens**
+
+    from binance_chain.client import Client, UnFreezeMsg
+
+    client = Client()
 
     # construct the message
     unfreeze_msg = UnFreezeMsg(
@@ -183,7 +198,6 @@ Websockets
     import asyncio
 
     from binance_chain.websockets import BinanceChainSocketManager
-
     from binance_chain.client import Client
 
     address = 'tbnb...'
@@ -222,7 +236,7 @@ Node RPC HTTP
 
 .. code:: python
 
-    from binance_chain.client import Client, Wallet, PeerType
+    from binance_chain.client import Client, PeerType
     from binance_chain.node_rpc import HttpRpcClient
 
     client = Client()
