@@ -14,7 +14,7 @@ Welcome to python-binance-chain v0.0.3
 .. image:: https://img.shields.io/pypi/pyversions/python-binance-chain.svg
     :target: https://pypi.python.org/pypi/python-binance-chain
 
-This is an unofficial Python wrapper for the `Binance Chain API <https://binance-chain.github.io/api-reference/dex-api/paths.html>`_. I am in no way affiliated with Binance, use at your own risk.
+This is an unofficial Python3 wrapper for the `Binance Chain API <https://binance-chain.github.io/api-reference/dex-api/paths.html>`_. I am in no way affiliated with Binance, use at your own risk.
 
 
 PyPi
@@ -30,13 +30,13 @@ Features
 - Implementation of HTTP endpoints
 - Implementation of HTTP RPC endpoints
 - Implementation of Websockets
+- Implementation wallet creation from private key or mnemonic or new wallet with random mnemonic
 - Implementation of Broadcast Transactions
 - Response exception handling
 
 TODO
 ----
 
-- Implement wallet creation
 - Implement RPC websockets etc
 
 Quick Start
@@ -112,9 +112,42 @@ If having issues with secp256k1 check the `Installation instructions for the sec
     # get transaction
     transaction = client.get_transaction('95DD6921370D74D0459590268B439F3DD49F6B1D090121AFE4B2183C040236F3')
 
+Wallet
+------
+
+**Initialise from Private Key**
+
+.. code:: python
+
+    from binance_chain.wallet import Wallet
+
+    wallet = Wallet('private_key_string')
+    print(wallet.address)
+    print(wallet.private_key)
+    print(wallet.public_key_hex)
+
+**Initialise from Mnemonic**
+
+    from binance_chain.wallet import Wallet
+
+    wallet = Wallet.create_wallet_from_mnemonic('mnemonic word string')
+    print(wallet.address)
+    print(wallet.private_key)
+    print(wallet.public_key_hex)
+
+**Initialise by generating a random Mneomonic**
+
+    from binance_chain.wallet import Wallet
+
+    wallet = Wallet.create_random_wallet()
+    print(wallet.address)
+    print(wallet.private_key)
+    print(wallet.public_key_hex)
 
 Broadcast Messages
 ------------------
+
+Requires a Wallet to have been initialised and then passed to the Client class
 
 **Place Order**
 
@@ -122,7 +155,7 @@ Broadcast Messages
 
     from binance_chain.client import Client, NewOrderMsg
 
-    client = Client()
+    client = Client(wallet=wallet)
 
     # construct the message
     new_order_msg = NewOrderMsg(
@@ -143,7 +176,7 @@ Broadcast Messages
 
     from binance_chain.client import Client, CancelOrderMsg
 
-    client = Client()
+    client = Client(wallet=wallet)
 
     # construct the message
     cancel_order_msg = CancelOrderMsg(
@@ -158,7 +191,7 @@ Broadcast Messages
 
     from binance_chain.client import Client, FreezeMsg
 
-    client = Client()
+    client = Client(wallet=wallet)
 
     # construct the message
     freeze_msg = FreezeMsg(
@@ -173,7 +206,7 @@ Broadcast Messages
 
     from binance_chain.client import Client, UnFreezeMsg
 
-    client = Client()
+    client = Client(wallet=wallet)
 
     # construct the message
     unfreeze_msg = UnFreezeMsg(
@@ -187,7 +220,6 @@ Broadcast Messages
 **Transfer Tokens**
 
 coming
-
 
 
 Websockets

@@ -25,6 +25,7 @@ From https://github.com/sipa/bech32
 """
 
 import array
+import hashlib
 
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
@@ -119,17 +120,20 @@ def decode(hrp, addr):
     return data[0], decoded
 
 
-def encode(hrp, witver, witprog):
+def encode(hrp, witprog):
     """Encode a segwit address."""
-    ret = bech32_encode(hrp, [witver] + convertbits(witprog, 8, 5))
-    if decode(hrp, ret) == (None, None):
-        return None
-    return ret
+    return bech32_encode(hrp, convertbits(witprog, 8, 5))
 
 
 def decode_address(address):
     hrp, data = bech32_decode(address)
-
     bits = convertbits(data, 5, 8, False)
 
     return array.array('B', bits).tostring()
+
+
+def address_from_public_key(public_key, hrp='tbnb'):
+    s = hashlib.new('sha256', public_key).digest()
+    r = hashlib.new('ripemd160', s).digest()
+
+    return encode(hrp, r)

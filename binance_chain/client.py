@@ -7,8 +7,8 @@ from typing import Optional, Dict, Union
 from decimal import Decimal
 
 import requests
-from secp256k1 import PrivateKey
 
+from .wallet import Wallet
 from .exceptions import (
     BinanceChainAPIException, BinanceChainRequestException
 )
@@ -86,33 +86,6 @@ class OrderType(str, Enum):
 class PeerType(str, Enum):
     NODE = 'node'
     WEBSOCKET = 'ws'
-
-
-class Wallet:
-
-    def __init__(self, address, private_key):
-
-        self._address = address
-        self._private_key = private_key
-
-        self._pk = PrivateKey(bytes(bytearray.fromhex(private_key)))
-        self._public_key = self._pk.pubkey.serialize(compressed=True)
-
-    @property
-    def address(self):
-        return self._address
-
-    @property
-    def private_key(self):
-        return self._private_key
-
-    @property
-    def public_key(self):
-        return self._public_key
-
-    def sign_message(self, msg_bytes):
-        sig = self._pk.ecdsa_sign(msg_bytes)
-        return self._pk.ecdsa_serialize_compact(sig)
 
 
 class Signature:
@@ -481,7 +454,6 @@ class Client:
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
-
         if not str(response.status_code).startswith('2'):
             raise BinanceChainAPIException(response)
         try:

@@ -10,6 +10,15 @@ client module
     :show-inheritance:
     :member-order: bysource
 
+wallet module
+----------------------
+
+.. automodule:: binance_chain.wallet
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
 websockets module
 --------------------------
 
