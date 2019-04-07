@@ -2,4 +2,6 @@ requests
 jsonrpcclient[requests,websockets]
 websockets
 secp256k1
-protobuf
+mnemonic
+pywallet
+protobuf>=3.6.1
