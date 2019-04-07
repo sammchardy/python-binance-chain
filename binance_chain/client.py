@@ -110,7 +110,6 @@ class Signature:
         ]), separators=(',', ':'), ensure_ascii=False)
 
     def to_bytes_json(self):
-        print(f"json sig:{self.to_json()}")
         return self.to_json().encode()
 
     def sign(self, wallet):
@@ -118,7 +117,6 @@ class Signature:
         json_bytes = self.to_bytes_json()
 
         signed = wallet.sign_message(json_bytes)
-        print(f"signed: len:{len(signed)}:{signed}")
         return signed[-64:]
 
 
@@ -143,18 +141,14 @@ class Msg:
         type_bytes = b""
         if self.AMINO_MESSAGE_TYPE:
             type_bytes = binascii.unhexlify(self.AMINO_MESSAGE_TYPE)
-            print(f'msg len: {self.AMINO_MESSAGE_TYPE} {(len(proto) + len(type_bytes))} varint:{binascii.hexlify(varint_encode((len(proto) + len(type_bytes))))}')
             varint_length = varint_encode(len(proto) + len(type_bytes))
         else:
-            print(f'sig len:{len(proto)} varint:{binascii.hexlify(varint_encode(len(proto)))}')
             varint_length = varint_encode(len(proto))
 
         msg = b""
         if self.INCLUDE_AMINO_LENGTH_PREFIX:
             msg += varint_length
         msg += type_bytes + proto
-
-        print(f"msg {self.AMINO_MESSAGE_TYPE} {binascii.hexlify(msg)}")
 
         return msg
 

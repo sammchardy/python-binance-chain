@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.0.4 - 2010-04-07
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Wallet initialise from private key or mnemonic string
+- Create wallet by generating a mnemonic
+
 v0.0.3 - 2010-04-06
 ^^^^^^^^^^^^^^^^^^^^
 
