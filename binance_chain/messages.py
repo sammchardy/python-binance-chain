@@ -1,6 +1,6 @@
 import json
 import binascii
-from typing import Dict, Union, Optional
+from typing import Dict, Union
 from decimal import Decimal
 from collections import OrderedDict
 
