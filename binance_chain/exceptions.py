@@ -24,6 +24,10 @@ class BinanceChainRequestException(Exception):
     pass
 
 
+class BinanceChainBroadcastException(Exception):
+    pass
+
+
 class BinanceChainRPCException(Exception):
     def __init__(self, response):
         self.code = 0
