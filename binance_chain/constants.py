@@ -60,7 +60,6 @@ class TransactionType(str, Enum):
 
 class OrderType(str, Enum):
     LIMIT = "LIMIT"
-    MARKET = "MARKET"
 
 
 class PeerType(str, Enum):

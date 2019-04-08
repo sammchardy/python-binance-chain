@@ -156,20 +156,23 @@ Wallet
     print(wallet.private_key)
     print(wallet.public_key_hex)
 
-Broadcast Messages
-------------------
+Broadcast Messages on HttpApiClient
+-----------------------------------
 
-Requires a Wallet to have been initialised and then passed to the Client class
+Requires a Wallet to have been created
 
 **Place Order**
 
+General case
+
 .. code:: python
 
-    from binance_chain.client import Client, NewOrderMsg
+    from binance_chain.client import HttpApiClient
+    from binance_chain.messages import NewOrderMsg
     from binance_chain.wallet import Wallet
 
     wallet = Wallet('private_key_string')
-    client = Client()
+    client = HttpApiClient()
 
     # construct the message
     new_order_msg = NewOrderMsg(
@@ -184,16 +187,42 @@ Requires a Wallet to have been initialised and then passed to the Client class
     # then broadcast it
     res = client.broadcast_msg(new_order_msg, sync=True)
 
+Limit Order Buy
+
+.. code:: python
+
+    from binance_chain.messages import LimitOrderBuyMsg
+
+    limit_order_msg = LimitOrderBuyMsg(
+        wallet=wallet,
+        symbol='ANN-457_BNB',
+        price=0.000396000,
+        quantity=12
+    )
+
+Limit Order Sell
+
+.. code:: python
+
+    from binance_chain.messages import LimitOrderSellMsg
+
+    limit_order_msg = LimitOrderSellMsg(
+        wallet=wallet,
+        symbol='ANN-457_BNB',
+        price=0.000396000,
+        quantity=12
+    )
 
 **Cancel Order**
 
 .. code:: python
 
-    from binance_chain.client import Client, CancelOrderMsg
+    from binance_chain.client import HttpApiClient
+    from binance_chain.messages import CancelOrderMsg
     from binance_chain.wallet import Wallet
 
     wallet = Wallet('private_key_string')
-    client = Client()
+    client = HttpApiClient()
 
     # construct the message
     cancel_order_msg = CancelOrderMsg(
@@ -207,11 +236,12 @@ Requires a Wallet to have been initialised and then passed to the Client class
 
 **Freeze Tokens**
 
-    from binance_chain.client import Client, FreezeMsg
+    from binance_chain.client import HttpApiClient
+    from binance_chain.messages import FreezeMsg
     from binance_chain.wallet import Wallet
 
     wallet = Wallet('private_key_string')
-    client = Client()
+    client = HttpApiClient()
 
     # construct the message
     freeze_msg = FreezeMsg(
@@ -225,11 +255,12 @@ Requires a Wallet to have been initialised and then passed to the Client class
 
 **Unfreeze Tokens**
 
-    from binance_chain.client import Client, UnFreezeMsg
+    from binance_chain.client import HttpApiClient
+    from binance_chain.messages import UnFreezeMsg
     from binance_chain.wallet import Wallet
 
     wallet = Wallet('private_key_string')
-    client = Client()
+    client = HttpApiClient()
 
     # construct the message
     unfreeze_msg = UnFreezeMsg(
@@ -295,19 +326,19 @@ Node RPC HTTP
 
 .. code:: python
 
-    from binance_chain.client import Client, PeerType
+    from binance_chain.client import HttpApiClient, PeerType
     from binance_chain.node_rpc import HttpRpcClient
 
-    client = Client()
+    httpapiclient = HttpApiClient()
 
     # get a peer that support node requests
-    peers = client.get_peers(peer_type=PeerType.NODE)
+    peers = httpapiclient.get_peers(peer_type=PeerType.NODE)
     listen_addr = peers[0]['listen_addr']
 
     # connect to this peer
     rpc_client = HttpRpcClient(listen_addr)
 
-
+    # test some endpoints
     abci_info = rpc_client.get_abci_info()
     consensus_state = rpc_client.dump_consensus_state()
     genesis = rpc_client.get_genesis()

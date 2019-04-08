@@ -1,6 +1,6 @@
 import json
 import binascii
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 from decimal import Decimal
 from collections import OrderedDict
 
@@ -100,7 +100,6 @@ class NewOrderMsg(Msg):
     }
 
     ORDER_TYPE_INT = {
-        OrderType.MARKET: 1,
         OrderType.LIMIT: 2
     }
 
@@ -154,6 +153,78 @@ class NewOrderMsg(Msg):
         pb.price = self._price
         pb.quantity = self._quantity
         return pb
+
+
+class LimitOrderMsg(NewOrderMsg):
+
+    def __init__(self, wallet: Wallet, symbol: str, side: OrderSide,
+                 price: Union[int, float, Decimal], quantity: Union[int, float, Decimal],
+                 time_in_force: TimeInForce = TimeInForce.GOOD_TILL_EXPIRE):
+        """NewOrder transaction creates a new order to buy and sell tokens on Binance DEX.
+
+        :param symbol: symbol for trading pair in full name of the tokens e.g. 'ANN-457_BNB'
+        :param side: OrderSide (BUY, SELL)
+        :param price: price of the order e.g. Decimal(0.000396000) or 0.002384
+        :param quantity: quantity of the order Decimal(12) or 12
+        :param time_in_force: TimeInForce type (GOOD_TILL_EXPIRE, IMMEDIATE_OR_CANCEL) default GOOD_TILL_EXPIRE
+
+        """
+        super().__init__(
+            wallet=wallet,
+            symbol=symbol,
+            time_in_force=time_in_force,
+            order_type=OrderType.LIMIT,
+            side=side,
+            price=price,
+            quantity=quantity
+        )
+
+
+class LimitOrderBuyMsg(LimitOrderMsg):
+
+    def __init__(self, wallet: Wallet, symbol: str,
+                 price: Union[int, float, Decimal], quantity: Union[int, float, Decimal],
+                 time_in_force: TimeInForce = TimeInForce.GOOD_TILL_EXPIRE):
+        """LimitOrderBuyMsg transaction creates a new limit order buy message on Binance DEX.
+
+        :param symbol: symbol for trading pair in full name of the tokens e.g. 'ANN-457_BNB'
+        :param price: price of the order e.g. Decimal(0.000396000) or 0.002384
+        :param quantity: quantity of the order Decimal(12) or 12
+        :param time_in_force: TimeInForce type (GOOD_TILL_EXPIRE, IMMEDIATE_OR_CANCEL) default GOOD_TILL_EXPIRE
+
+        """
+        super().__init__(
+            wallet=wallet,
+            symbol=symbol,
+            time_in_force=time_in_force,
+            side=OrderSide.BUY,
+            price=price,
+            quantity=quantity
+        )
+
+
+class LimitOrderSellMsg(LimitOrderMsg):
+
+    def __init__(self, wallet: Wallet, symbol: str,
+                 price: Union[int, float, Decimal], quantity: Union[int, float, Decimal],
+                 time_in_force: TimeInForce = TimeInForce.GOOD_TILL_EXPIRE):
+        """LimitOrderSellMsg transaction creates a new limit order sell message on Binance DEX.
+
+        :param symbol: symbol for trading pair in full name of the tokens e.g. 'ANN-457_BNB'
+        :param time_in_force: TimeInForce type (GOOD_TILL_EXPIRE, IMMEDIATE_OR_CANCEL)
+        :param price: price of the order e.g. Decimal(0.000396000) or 0.002384
+        :param quantity: quantity of the order Decimal(12) or 12
+        :param time_in_force: TimeInForce type (GOOD_TILL_EXPIRE, IMMEDIATE_OR_CANCEL) default GOOD_TILL_EXPIRE
+
+        """
+        super().__init__(
+            wallet=wallet,
+            symbol=symbol,
+            time_in_force=time_in_force,
+            side=OrderSide.SELL,
+            price=price,
+            quantity=quantity
+        )
 
 
 class CancelOrderMsg(Msg):
