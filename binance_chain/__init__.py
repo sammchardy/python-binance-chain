@@ -1,7 +1,7 @@
-"""An unofficial Python wrapper for the Binance Chain HTTP API
+"""An unofficial Python3 wrapper for the Binance Chain API
 
 .. moduleauthor:: Sam McHardy
 
 """
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'

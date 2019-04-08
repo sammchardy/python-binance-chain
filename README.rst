@@ -1,5 +1,5 @@
 ======================================
-Welcome to python-binance-chain v0.0.4
+Welcome to python-binance-chain v0.0.5
 ======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg
@@ -27,17 +27,22 @@ Source code
 Features
 --------
 
-- Implementation of HTTP endpoints
-- Implementation of HTTP RPC endpoints
-- Implementation of Websockets
-- Implementation wallet creation from private key or mnemonic or new wallet with random mnemonic
-- Implementation of Broadcast Transactions
+- Support for Testnet and Production environments, along with user defined environment
+- HTTP API endpoints
+- HTTP RPC Node endpoints
+- Async Websockets
+- Wallet creation from private key or mnemonic or new wallet with random mnemonic
+- Wallet handling account sequence for transactions
+- Broadcast Transactions with helper functions for limit buy and sell
 - Response exception handling
+
+Read the `Changelog <https://python-binance-chain.readthedocs.io/en/latest/changelog.html>`_
 
 TODO
 ----
 
-- Implement RPC websockets etc
+- Implement RPC websockets
+- more things...
 
 Quick Start
 -----------
