@@ -5,6 +5,7 @@ from random import random
 from typing import Dict, Callable, Awaitable, Optional, List
 
 import websockets as ws
+from binance_chain.environment import BinanceEnvironment
 
 
 class ReconnectingWebsocket:
@@ -15,13 +16,13 @@ class ReconnectingWebsocket:
     TIMEOUT: int = 10
     PROTOCOL_VERSION: str = '1.0.0'
 
-    def __init__(self, loop, coro, address, endpoint_url):
+    def __init__(self, loop, coro, address, env: BinanceEnvironment):
         self._loop = loop
         self._log = logging.getLogger(__name__)
         self._coro = coro
         self._reconnect_attempts: int = 0
         self._conn = None
-        self._endpoint_url = endpoint_url
+        self._env = env
         self._address = address
         self._connect_id: int = None
         self._ping_timeout = 60
@@ -33,7 +34,7 @@ class ReconnectingWebsocket:
         self._conn = asyncio.ensure_future(self._run())
 
     def get_ws_endpoint_url(self):
-        return f"{self._endpoint_url}ws/{self._address}"
+        return f"{self._env.wss_url}ws/{self._address}"
 
     async def _run(self):
 
@@ -110,10 +111,11 @@ class ReconnectingWebsocket:
 
 class BinanceChainSocketManager:
 
-    def __init__(self):
+    def __init__(self, env: BinanceEnvironment):
         """Initialise the BinanceChainSocketManager
 
         """
+        self._env = env
         self._callback: Callable[[int], Awaitable[str]]
         self._conn = None
         self._loop = None
@@ -121,12 +123,14 @@ class BinanceChainSocketManager:
 
     @classmethod
     async def create(cls, loop, callback: Callable[[int], Awaitable[str]],
-                     address: str, endpoint_url: Optional[str] = None):
-        self = BinanceChainSocketManager()
+                     address: str, endpoint_url: Optional[str] = None,
+                     env: Optional[BinanceEnvironment] = None):
+        env = env or BinanceEnvironment.get_production_env()
+        self = BinanceChainSocketManager(env=env)
         self._loop = loop
         self._callback = callback
         self._endpoint_url = endpoint_url or 'wss://testnet-dex.binance.org/api/'
-        self._conn = ReconnectingWebsocket(loop, self._recv, address, self._endpoint_url)
+        self._conn = ReconnectingWebsocket(loop, self._recv, address, env=env)
         return self
 
     async def _recv(self, msg: Dict):

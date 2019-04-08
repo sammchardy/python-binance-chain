@@ -52,8 +52,14 @@ If having issues with secp256k1 check the `Installation instructions for the sec
 .. code:: python
 
     from binance_chain.client import Client, KlineInterval
+    from binance_chain.environment import BinanceEnvironment
 
-    client = Client()
+    # initialise with Testnet environment
+    testnet_env = BinanceEnvironment.get_testnet_env()
+    client = HttpApiClient(env=testnet_env)
+
+    # Alternatively pass no env to get production
+    prod_client = HttpApiClient()
 
     # connect client to different URL
     client = Client(api_url='https://yournet.com')
@@ -120,8 +126,10 @@ Wallet
 .. code:: python
 
     from binance_chain.wallet import Wallet
+    from binance_chain.environment import BinanceEnvironment
 
-    wallet = Wallet('private_key_string')
+    testnet_env = BinanceEnvironment.get_testnet_env()
+    wallet = Wallet('private_key_string', env=testnet_env)
     print(wallet.address)
     print(wallet.private_key)
     print(wallet.public_key_hex)
@@ -129,8 +137,10 @@ Wallet
 **Initialise from Mnemonic**
 
     from binance_chain.wallet import Wallet
+    from binance_chain.environment import BinanceEnvironment
 
-    wallet = Wallet.create_wallet_from_mnemonic('mnemonic word string')
+    testnet_env = BinanceEnvironment.get_testnet_env()
+    wallet = Wallet.create_wallet_from_mnemonic('mnemonic word string', env=testnet_env)
     print(wallet.address)
     print(wallet.private_key)
     print(wallet.public_key_hex)
@@ -138,8 +148,10 @@ Wallet
 **Initialise by generating a random Mneomonic**
 
     from binance_chain.wallet import Wallet
+    from binance_chain.environment import BinanceEnvironment
 
-    wallet = Wallet.create_random_wallet()
+    testnet_env = BinanceEnvironment.get_testnet_env(, env=testnet_env)
+    wallet = Wallet.create_random_wallet(env=env)
     print(wallet.address)
     print(wallet.private_key)
     print(wallet.public_key_hex)
@@ -154,11 +166,14 @@ Requires a Wallet to have been initialised and then passed to the Client class
 .. code:: python
 
     from binance_chain.client import Client, NewOrderMsg
+    from binance_chain.wallet import Wallet
 
-    client = Client(wallet=wallet)
+    wallet = Wallet('private_key_string')
+    client = Client()
 
     # construct the message
     new_order_msg = NewOrderMsg(
+        wallet=wallet,
         symbol="ANN-457_BNB",
         time_in_force=TimeInForce.GTE,
         order_type=OrderType.LIMIT,
@@ -175,12 +190,15 @@ Requires a Wallet to have been initialised and then passed to the Client class
 .. code:: python
 
     from binance_chain.client import Client, CancelOrderMsg
+    from binance_chain.wallet import Wallet
 
-    client = Client(wallet=wallet)
+    wallet = Wallet('private_key_string')
+    client = Client()
 
     # construct the message
     cancel_order_msg = CancelOrderMsg(
-        order_id="09F8B32D33CBE2B546088620CBEBC1FF80F9BE001ACF42762B0BBFF0A729CE3",
+        wallet=wallet,
+        order_id="order_id_string",
         symbol='ANN-457_BNB',
     )
     # then broadcast it
@@ -190,11 +208,14 @@ Requires a Wallet to have been initialised and then passed to the Client class
 **Freeze Tokens**
 
     from binance_chain.client import Client, FreezeMsg
+    from binance_chain.wallet import Wallet
 
-    client = Client(wallet=wallet)
+    wallet = Wallet('private_key_string')
+    client = Client()
 
     # construct the message
     freeze_msg = FreezeMsg(
+        wallet=wallet,
         symbol='BNB',
         amount=Decimal(10)
     )
@@ -205,11 +226,14 @@ Requires a Wallet to have been initialised and then passed to the Client class
 **Unfreeze Tokens**
 
     from binance_chain.client import Client, UnFreezeMsg
+    from binance_chain.wallet import Wallet
 
-    client = Client(wallet=wallet)
+    wallet = Wallet('private_key_string')
+    client = Client()
 
     # construct the message
     unfreeze_msg = UnFreezeMsg(
+        wallet=wallet,
         symbol='BNB',
         amount=Decimal(10)
     )
@@ -230,7 +254,9 @@ Websockets
     import asyncio
 
     from binance_chain.websockets import BinanceChainSocketManager
-    from binance_chain.client import Client
+    from binance_chain.environment import BinanceEnvironment
+
+    testnet_env = BinanceEnvironment.get_testnet_env()
 
     address = 'tbnb...'
 
@@ -243,7 +269,8 @@ Websockets
             """
             print(msg)
 
-        bcsm = await BinanceChainSocketManager.create(loop, handle_evt, address2)
+        # connect to testnet env
+        bcsm = await BinanceChainSocketManager.create(loop, handle_evt, address2, env=testnet_env)
 
         # subscribe to relevant endpoints
         await bcsm.subscribe_orders(address)

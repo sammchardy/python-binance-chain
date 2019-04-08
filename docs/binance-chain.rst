@@ -10,10 +10,28 @@ client module
     :show-inheritance:
     :member-order: bysource
 
+environment module
+----------------------
+
+.. automodule:: binance_chain.environment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
 wallet module
 ----------------------
 
 .. automodule:: binance_chain.wallet
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
+messages module
+----------------------
+
+.. automodule:: binance_chain.messages
     :members:
     :undoc-members:
     :show-inheritance:
@@ -36,6 +54,16 @@ node rpc module
     :undoc-members:
     :show-inheritance:
     :member-order: bysource
+
+constants module
+----------------------
+
+.. automodule:: binance_chain.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
 
 exceptions module
 --------------------------
