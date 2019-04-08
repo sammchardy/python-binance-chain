@@ -118,8 +118,41 @@ If having issues with secp256k1 check the `Installation instructions for the sec
     # get transaction
     transaction = client.get_transaction('95DD6921370D74D0459590268B439F3DD49F6B1D090121AFE4B2183C040236F3')
 
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain>`_ docs for more information.
+
+Environment
+-----------
+
+Binance Chain offers a Testnet and a coming Production system.
+
+To interact with Binance Chain now you must use the Testnet environment for the HttpApiClient, Websocket and the Wallet.
+
+To create and use the Testnet environment is as easy as
+
+.. code:: python
+
+    from binance_chain.environment import BinanceEnvironment
+
+    # initialise with Testnet environment
+    testnet_env = BinanceEnvironment.get_testnet_env()
+
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.environment>`_ docs for more information.
+
 Wallet
 ------
+
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.wallet>`_ docs for more information.
+
+The wallet is required if you want to send orders or freeze tokens.
+
+It can be initialised with your private key or your mnemonic phrase.
+
+Note that the BinanceEnvironemnt used for the wallet must match that of the HttpApiClient, testnet addresses will not
+work on the production system.
+
+The Wallet class can also create a new account for you by calling the `Wallet.create_random_wallet()` function,
+see examples below
+
 
 **Initialise from Private Key**
 
@@ -158,6 +191,8 @@ Wallet
 
 Broadcast Messages on HttpApiClient
 -----------------------------------
+
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.messages>`_ docs for more information.
 
 Requires a Wallet to have been created
 
@@ -280,6 +315,8 @@ coming
 Websockets
 ----------
 
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.websockets>`_ docs for more information.
+
 .. code:: python
 
     import asyncio
@@ -320,9 +357,32 @@ Websockets
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
 
+**Unsubscribe**
+
+.. code:: python
+
+    # with an existing BinanceChainSocketManager instance
+
+
+    await bcsm.unsubscribe_orders()
+
+    # can unsubscribe from a particular symbol, after subscribing to multiple
+    await bcsm.subscribe_market_depth(["0KI-0AF_BNB"])
+
+
+**Close Connection**
+
+.. code:: python
+
+    # with an existing BinanceChainSocketManager instance
+
+    await bcsm.close_connection()
+
 
 Node RPC HTTP
 -------------
+
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.node_rpc>`_ docs for more information.
 
 .. code:: python
 

@@ -4,7 +4,7 @@ from enum import Enum
 class KlineInterval(str, Enum):
     ONE_MINUTE = '1m'
     THREE_MINUTES = '3m'
-    FVE_MINUTES = '5m'
+    FIVE_MINUTES = '5m'
     FIFTEEN_MINUTES = '15m'
     THIRTY_MINUTES = '30m'
     ONE_HOUR = '1h'
