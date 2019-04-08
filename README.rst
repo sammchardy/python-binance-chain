@@ -384,6 +384,8 @@ Node RPC HTTP
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.node_rpc>`_ docs for more information.
 
+The binance_chain.client.HttpApiClient has a helper function get_node_peers() which returns a list of peers with Node RPC functionality
+
 .. code:: python
 
     from binance_chain.client import HttpApiClient, PeerType

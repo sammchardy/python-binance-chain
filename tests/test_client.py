@@ -32,9 +32,20 @@ class TestClient:
     ])
     def test_get_peers_capability_node(self, peer_type, httpclient):
         peers = httpclient.get_peers(peer_type=peer_type)
-        print(peers)
         for p in peers:
             assert peer_type in p['capabilities']
+
+    def test_get_node_peers(self, httpclient):
+        peers = httpclient.get_node_peers()
+        for p in peers:
+            assert PeerType.NODE in p['capabilities']
+        assert httpclient.get_peers()
+
+    def test_get_websocket_peers(self, httpclient):
+        peers = httpclient.get_node_peers()
+        for p in peers:
+            assert PeerType.WEBSOCKET in p['capabilities']
+        assert httpclient.get_peers()
 
     def test_get_tokens(self, httpclient):
         assert httpclient.get_tokens()

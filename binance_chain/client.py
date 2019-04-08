@@ -189,6 +189,20 @@ class HttpApiClient:
 
         return peers
 
+    def get_node_peers(self):
+        """Get a list of peers with Node RPC support
+
+        :return:
+        """
+        return self.get_peers(peer_type=PeerType.NODE)
+
+    def get_websocket_peers(self):
+        """Get a list of peers with Websocket support
+
+        :return:
+        """
+        return self.get_peers(peer_type=PeerType.WEBSOCKET)
+
     def get_account(self, address: str):
         """Gets account metadata for an address
 
