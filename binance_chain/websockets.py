@@ -122,13 +122,11 @@ class BinanceChainSocketManager:
         self._log = logging.getLogger(__name__)
 
     @classmethod
-    async def create(cls, loop, callback: Callable[[int], Awaitable[str]], endpoint_url: Optional[str] = None,
-                     env: Optional[BinanceEnvironment] = None):
+    async def create(cls, loop, callback: Callable[[int], Awaitable[str]], env: Optional[BinanceEnvironment] = None):
         """Create a BinanceChainSocketManager instance
 
         :param loop: asyncio loop
         :param callback: async callback function to receive messages
-        :param endpoint_url:
         :param env:
         :return:
         """
@@ -136,7 +134,6 @@ class BinanceChainSocketManager:
         self = BinanceChainSocketManager(env=env)
         self._loop = loop
         self._callback = callback
-        self._endpoint_url = endpoint_url or 'wss://testnet-dex.binance.org/api/'
         self._conn = ReconnectingWebsocket(loop, self._recv, env=env)
         return self
 

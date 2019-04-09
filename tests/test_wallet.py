@@ -54,5 +54,54 @@ class TestWallet:
 
         assert wallet
         assert wallet.private_key is not None
+        assert wallet.public_key is not None
         assert wallet.public_key_hex is not None
         assert wallet.address is not None
+
+    def test_wallet_sequence_increment(self, private_key, env, httpclient):
+
+        wallet = Wallet(private_key=private_key, env=env)
+
+        wallet._sequence = 100
+
+        wallet.increment_account_sequence()
+
+        assert wallet.sequence == 101
+
+    def test_wallet_sequence_decrement(self, private_key, env, httpclient):
+        wallet = Wallet(private_key=private_key, env=env)
+
+        wallet._sequence = 100
+
+        wallet.decrement_account_sequence()
+
+        assert wallet.sequence == 99
+
+    def test_wallet_reload_sequence(self, private_key, env, httpclient):
+        wallet = Wallet(private_key=private_key, env=env)
+
+        wallet.initialise_wallet(httpclient)
+        account_sequence = wallet.sequence
+
+        wallet.increment_account_sequence()
+
+        wallet.reload_account_sequence(httpclient)
+
+        assert wallet.sequence == account_sequence
+
+    def test_generate_order_id(self, private_key, env, httpclient):
+        wallet = Wallet(private_key=private_key, env=env)
+
+        wallet.initialise_wallet(httpclient)
+
+        order_id = wallet.generate_order_id()
+
+        assert order_id == f"7F756B1BE93AA2E2FDC3D7CB713ABC206F877802-{wallet.sequence + 1}"
+
+    def test_sign_message(self, private_key, env):
+        wallet = Wallet(private_key=private_key, env=env)
+
+        expected = (b'\xd9\x01\x02\xab\x13\xfd^4Ge\x82\xa9\xee\x82\xb5\x8c\xa9\x97}\xf9t\xa9\xc7\nC\xee\xfd\x8bG'
+                    b'\x95N\xe84\xfc\x17\xc0JE\x9a.\xe2\xbb\xa3\x14\xde$\x07\t\xbbB\xeb\xe2\xfb\x1e\xa1dc\x9d\xba'
+                    b'\xd2\xfa\xe3\xb6\xc1')
+        assert wallet.sign_message(b"testmessage") == expected
