@@ -42,7 +42,7 @@ class TestClient:
         assert httpclient.get_peers()
 
     def test_get_websocket_peers(self, httpclient):
-        peers = httpclient.get_node_peers()
+        peers = httpclient.get_websocket_peers()
         for p in peers:
             assert PeerType.WEBSOCKET in p['capabilities']
         assert httpclient.get_peers()
