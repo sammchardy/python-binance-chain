@@ -2,7 +2,7 @@ import pytest
 import binascii
 from collections import OrderedDict
 
-from binance_chain.messages import PubKeyMsg, NewOrderMsg, CancelOrderMsg
+from binance_chain.messages import PubKeyMsg, NewOrderMsg, CancelOrderMsg, TransferMsg
 from binance_chain.environment import BinanceEnvironment
 from binance_chain.wallet import Wallet
 from binance_chain.utils import varint_encode
@@ -154,6 +154,32 @@ class TestMessages:
                     b'0a26eb5ae9872102cce2ee4e37dc8c65d6445c966faf31ebfe578a90695138947ee7cab8ae9a2c08124085c6fb270'
                     b'de3e614b025a68c0ff0f3af0fb6667e4ddf7a52b2e182bbf049bcb16151b4766b77ad1d00beb597dde432321f320a'
                     b'e3b7446e4e8abce07257c83049189cb70120022001')
+
+        assert msg.to_hex_data() == expected
+
+    def test_transfer_message_hex(self, wallet):
+
+        wallet._account_number = 23452
+        wallet._sequence = 2
+
+        symbol = 'BNB'
+        from_address = 'tbnb18fhdlzyqj360nympg5ejl7c5g4frlzheuealvg'
+        to_address = 'tbnb10a6kkxlf823w9lwr6l9hzw4uyphcw7qzrud5rr'
+        amount = 1
+
+        msg = TransferMsg(
+            wallet=wallet,
+            symbol=symbol,
+            from_address=from_address,
+            to_address=to_address,
+            amount=amount
+        )
+
+        expected = (b'c601f0625dee0a4c2a2c87fa0a220a143a6edf88809474f9936145332ffb1445523f8af9120a0a03424e421080c2'
+                    b'd72f12220a147f756b1be93aa2e2fdc3d7cb713abc206f877802120a0a03424e421080c2d72f12700a26eb5ae987'
+                    b'2102cce2ee4e37dc8c65d6445c966faf31ebfe578a90695138947ee7cab8ae9a2c0812403189d8cda9a93298cc27'
+                    b'24c27d2dd4536f6ba8f3b0aa9338c43ae9f1616c36b312984ee1b3cda93b25f8b7680702c5505f1697cec7249fed'
+                    b'b7bf092b221457e3189cb70120022001')
 
         print(msg.to_hex_data())
 

@@ -276,6 +276,8 @@ Limit Order Sell
 
 **Freeze Tokens**
 
+.. code:: python
+
     from binance_chain.client import HttpApiClient
     from binance_chain.messages import FreezeMsg
     from binance_chain.wallet import Wallet
@@ -294,6 +296,8 @@ Limit Order Sell
 
 
 **Unfreeze Tokens**
+
+.. code:: python
 
     from binance_chain.client import HttpApiClient
     from binance_chain.messages import UnFreezeMsg
@@ -314,7 +318,23 @@ Limit Order Sell
 
 **Transfer Tokens**
 
-coming
+.. code:: python
+
+    from binance_chain.client import HttpApiClient
+    from binance_chain.messages import TransferMsg
+    from binance_chain.wallet import Wallet
+
+    wallet = Wallet('private_key_string')
+    client = HttpApiClient()
+
+    transfer_msg = TransferMsg(
+        wallet=wallet,
+        symbol='BNB',
+        amount=1,
+        from_address='<from address>',
+        to_address='<to address>'
+    )
+    res = client.broadcast_msg(transfer_msg, sync=True)
 
 
 Websockets
