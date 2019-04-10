@@ -4,7 +4,7 @@ Binance Chain API
 client module
 ----------------------
 
-.. automodule:: binance_chain.client
+.. automodule:: binance_chain.http
     :members:
     :undoc-members:
     :show-inheritance:
@@ -46,10 +46,10 @@ websockets module
     :show-inheritance:
     :member-order: bysource
 
-node rpc module
+node rpc http module
 --------------------------
 
-.. automodule:: binance_chain.node_rpc
+.. automodule:: binance_chain.node_rpc.http
     :members:
     :undoc-members:
     :show-inheritance:
@@ -74,10 +74,10 @@ exceptions module
     :show-inheritance:
     :member-order: bysource
 
-utils module
+utils.encode_utils module
 --------------------------
 
-.. automodule:: binance_chain.utils
+.. automodule:: binance_chain.utils.encode_utils
     :members:
     :undoc-members:
     :show-inheritance:

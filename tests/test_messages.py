@@ -5,7 +5,7 @@ from collections import OrderedDict
 from binance_chain.messages import PubKeyMsg, NewOrderMsg, CancelOrderMsg, TransferMsg
 from binance_chain.environment import BinanceEnvironment
 from binance_chain.wallet import Wallet
-from binance_chain.utils import varint_encode
+from binance_chain.utils.encode_utils import varint_encode
 from binance_chain.constants import OrderType, OrderSide, TimeInForce
 
 

@@ -1,6 +1,7 @@
 import pytest
 
-from binance_chain.client import HttpApiClient, PeerType
+from binance_chain.http import HttpApiClient
+from binance_chain.constants import PeerType
 from binance_chain.environment import BinanceEnvironment
 
 

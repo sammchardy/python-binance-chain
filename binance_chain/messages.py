@@ -6,11 +6,11 @@ from collections import OrderedDict
 
 from binance_chain.wallet import Wallet
 from binance_chain.constants import TimeInForce, OrderSide, OrderType
-from binance_chain.dex_pb2 import (
+from binance_chain.protobuf.dex_pb2 import (
     NewOrder, CancelOrder, TokenFreeze, TokenUnfreeze, StdTx, StdSignature, Send, Input, Output, Token
 )
-from binance_chain.utils import encode_number, varint_encode
-from binance_chain.segwit_addr import decode_address
+from binance_chain.utils.encode_utils import encode_number, varint_encode
+from binance_chain.utils.segwit_addr import decode_address
 
 # An identifier for tools triggering broadcast transactions, set to zero if unwilling to disclose.
 BROADCAST_SOURCE = 1

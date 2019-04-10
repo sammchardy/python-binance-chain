@@ -1,6 +1,8 @@
 import logging
 from typing import Optional, Dict
 
+import asyncio
+import aiohttp
 import requests
 
 import binance_chain.messages
@@ -11,7 +13,7 @@ from binance_chain.exceptions import (
 )
 
 
-class HttpApiClient:
+class BaseApiClient:
 
     API_VERSION = 'v1'
 
@@ -39,27 +41,28 @@ class HttpApiClient:
         self._requests_params = requests_params
         self.session = self._init_session()
 
+    def _init_session(self):
+
+        session = requests.session()
+        headers = self._get_headers()
+        session.headers.update(headers)
+        return session
+
     @property
     def env(self):
         return self._env
 
-    def _init_session(self):
+    def _create_uri(self, path):
+        full_path = '/api/{}/{}'.format(self.API_VERSION, path)
+        return '{}{}'.format(self._env.api_url, full_path)
 
-        session = requests.session()
-        headers = {
+    def _get_headers(self):
+        return {
             'Accept': 'application/json',
             'User-Agent': 'python-binance-chain',
         }
-        session.headers.update(headers)
-        return session
 
-    def _create_path(self, path):
-        return '/api/{}/{}'.format(self.API_VERSION, path)
-
-    def _create_uri(self, path):
-        return '{}{}'.format(self._env.api_url, path)
-
-    def _request(self, method, path, **kwargs):
+    def _get_request_kwargs(self, method, **kwargs):
 
         # set default requests timeout
         kwargs['timeout'] = 10
@@ -71,16 +74,23 @@ class HttpApiClient:
         kwargs['data'] = kwargs.get('data', {})
         kwargs['headers'] = kwargs.get('headers', {})
 
-        full_path = self._create_path(path)
-        uri = self._create_uri(full_path)
-        print(f"uri:{uri}")
-
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
             del(kwargs['data'])
 
         if method == 'post':
             kwargs['headers']['content-type'] = 'text/plain'
+
+        return kwargs
+
+
+class HttpApiClient(BaseApiClient):
+
+    def _request(self, method, path, **kwargs):
+
+        uri = self._create_uri(path)
+
+        kwargs = self._get_request_kwargs(method, **kwargs)
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
@@ -92,15 +102,15 @@ class HttpApiClient:
         response.
         """
         if not str(response.status_code).startswith('2'):
-            raise BinanceChainAPIException(response)
+            raise BinanceChainAPIException(response, response.status_code)
         try:
             res = response.json()
 
             if 'code' in res and res['code'] != "200000":
-                raise BinanceChainAPIException(response)
+                raise BinanceChainAPIException(response, response.status_code)
 
             if 'success' in res and not res['success']:
-                raise BinanceChainAPIException(response)
+                raise BinanceChainAPIException(response, response.status_code)
 
             # by default return full response
             # if it's a normal response we have a data attribute, return that
@@ -353,7 +363,7 @@ class HttpApiClient:
         if self._env != msg.wallet.env:
             raise BinanceChainBroadcastException("Wallet environment doesn't match HttpApiClient environment")
 
-        msg.wallet.initialise_wallet(self)
+        msg.wallet.initialise_wallet()
         data = msg.to_hex_data()
 
         logging.debug(f'data:{data}')
@@ -628,3 +638,290 @@ class HttpApiClient:
             data['end'] = end_time
 
         return self._get("transactions", data=data)
+
+
+class AsyncHttpApiClient(BaseApiClient):
+
+    @classmethod
+    async def create(cls, env: Optional[BinanceEnvironment] = None, requests_params: Optional[Dict] = None):
+
+        return AsyncHttpApiClient(env, requests_params)
+
+    def _init_session(self):
+
+        loop = asyncio.get_event_loop()
+        session = aiohttp.ClientSession(
+            loop=loop,
+            headers=self._get_headers()
+        )
+        return session
+
+    async def _request(self, method, path, **kwargs):
+
+        uri = self._create_uri(path)
+
+        kwargs = self._get_request_kwargs(method, **kwargs)
+
+        async with getattr(self.session, method)(uri, **kwargs) as response:
+            return await self._handle_response(response)
+
+    async def _handle_response(self, response):
+        """Internal helper for handling API responses from the Binance server.
+        Raises the appropriate exceptions when necessary; otherwise, returns the
+        response.
+        """
+        if not str(response.status).startswith('2'):
+            raise BinanceChainAPIException(response, response.status)
+        try:
+            res = await response.json()
+
+            if 'code' in res and res['code'] != "200000":
+                raise BinanceChainAPIException(response, response.status)
+
+            if 'success' in res and not res['success']:
+                raise BinanceChainAPIException(response, response.status)
+
+            # by default return full response
+            # if it's a normal response we have a data attribute, return that
+            if 'data' in res:
+                res = res['data']
+            return res
+        except ValueError:
+            raise BinanceChainRequestException('Invalid Response: %s' % await response.text())
+
+    async def _get(self, path, **kwargs):
+        return await self._request('get', path, **kwargs)
+
+    async def _post(self, path, **kwargs):
+        return await self._request('post', path, **kwargs)
+
+    async def _put(self, path, **kwargs):
+        return await self._request('put', path, **kwargs)
+
+    async def _delete(self, path, **kwargs):
+        return await self._request('delete', path, **kwargs)
+
+    async def get_time(self):
+        return await self._get("time")
+    get_time.__doc__ = HttpApiClient.get_time.__doc__
+
+    async def get_node_info(self):
+        return await self._get("node-info")
+    get_node_info.__doc__ = HttpApiClient.get_node_info.__doc__
+
+    async def get_validators(self):
+        return await self._get("validators")
+    get_validators.__doc__ = HttpApiClient.get_validators.__doc__
+
+    async def get_peers(self, peer_type: Optional[PeerType] = None):
+        peers = await self._get("peers")
+        if peer_type:
+            peers = [p for p in peers if peer_type in p['capabilities']]
+
+        return peers
+    get_peers.__doc__ = HttpApiClient.get_peers.__doc__
+
+    async def get_node_peers(self):
+        return await self.get_peers(peer_type=PeerType.NODE)
+    get_node_peers.__doc__ = HttpApiClient.get_node_peers.__doc__
+
+    async def get_websocket_peers(self):
+        return await self.get_peers(peer_type=PeerType.WEBSOCKET)
+    get_websocket_peers.__doc__ = HttpApiClient.get_websocket_peers.__doc__
+
+    async def get_account(self, address: str):
+        return await self._get(f"account/{address}")
+    get_account.__doc__ = HttpApiClient.get_account.__doc__
+
+    async def get_account_sequence(self, address: str):
+        return await self._get(f"account/{address}/sequence")
+    get_account_sequence.__doc__ = HttpApiClient.get_account_sequence.__doc__
+
+    async def get_transaction(self, transaction_hash: str):
+        data = {
+            'format': 'json'
+        }
+        return await self._get(f"tx/{transaction_hash}?format=json", data=data)
+    get_transaction.__doc__ = HttpApiClient.get_transaction.__doc__
+
+    async def get_tokens(self):
+        return await self._get("tokens")
+    get_tokens.__doc__ = HttpApiClient.get_tokens.__doc__
+
+    async def get_markets(self):
+        return await self._get("markets")
+    get_markets.__doc__ = HttpApiClient.get_markets.__doc__
+
+    async def get_fees(self):
+        return await self._get("fees")
+    get_fees.__doc__ = HttpApiClient.get_fees.__doc__
+
+    async def get_order_book(self, symbol: str):
+        data = {
+            'symbol': symbol
+        }
+        return await self._get("depth", data=data)
+    get_order_book.__doc__ = HttpApiClient.get_order_book.__doc__
+
+    async def broadcast_msg(self, msg: binance_chain.messages.Msg, sync: bool = False):
+        # fetch account detail
+        # account = self.get_account(self.msg.wallet.address)
+
+        if self._env != msg.wallet.env:
+            raise BinanceChainBroadcastException("Wallet environment doesn't match HttpApiClient environment")
+
+        msg.wallet.initialise_wallet()
+        data = msg.to_hex_data()
+
+        logging.debug(f'data:{data}')
+
+        req_path = 'broadcast'
+        if sync:
+            req_path += f'?sync=1'
+
+        res = await self._post(req_path, data=data)
+        msg.wallet.increment_account_sequence()
+        return res
+    broadcast_msg.__doc__ = HttpApiClient.broadcast_msg.__doc__
+
+    async def get_klines(self, symbol: str, interval: KlineInterval, limit: Optional[int] = 300,
+                         start_time: Optional[int] = None, end_time: Optional[int] = None):
+        data = {
+            'symbol': symbol,
+            'interval': interval
+        }
+        if limit is not None:
+            data['limit'] = limit
+        if start_time is not None:
+            data['startTime'] = start_time
+        if end_time is not None:
+            data['endTime'] = end_time
+
+        return await self._get("klines", data=data)
+    get_klines.__doc__ = HttpApiClient.get_klines.__doc__
+
+    async def get_closed_orders(
+        self, address: str, symbol: Optional[str] = None, status: Optional[OrderStatus] = None,
+        side: Optional[OrderSide] = None, offset: Optional[int] = 0, limit: Optional[int] = 500,
+        start_time: Optional[int] = None, end_time: Optional[int] = None, total: Optional[int] = 0
+    ):
+        data = {
+            'address': address
+        }
+        if symbol is not None:
+            data['symbol'] = symbol
+        if status is not None:
+            data['status'] = status
+        if side is not None:
+            data['side'] = side
+        if offset is not None:
+            data['offset'] = offset
+        if limit is not None:
+            data['limit'] = limit
+        if start_time is not None:
+            data['start'] = start_time
+        if end_time is not None:
+            data['end'] = end_time
+        if total is not None:
+            data['total'] = total
+
+        return await self._get("orders/closed", data=data)
+    get_closed_orders.__doc__ = HttpApiClient.get_closed_orders.__doc__
+
+    async def get_open_orders(
+        self, address: str, symbol: Optional[str] = None, offset: Optional[int] = 0, limit: Optional[int] = 500,
+        total: Optional[int] = 0
+    ):
+        data = {
+            'address': address
+        }
+        if symbol is not None:
+            data['symbol'] = symbol
+        if offset is not None:
+            data['offset'] = offset
+        if limit is not None:
+            data['limit'] = limit
+        if total is not None:
+            data['total'] = total
+
+        return await self._get("orders/open", data=data)
+    get_open_orders.__doc__ = HttpApiClient.get_open_orders.__doc__
+
+    async def get_order(self, order_id: str):
+        return await self._get(f"orders/{order_id}")
+    get_order.__doc__ = HttpApiClient.get_order.__doc__
+
+    async def get_ticker(self, symbol: str):
+        data = {
+            'symbol': symbol
+        }
+
+        return await self._get("ticker/24hr", data=data)
+    get_ticker.__doc__ = HttpApiClient.get_ticker.__doc__
+
+    async def get_trades(
+        self, address: Optional[str] = None, symbol: Optional[str] = None,
+        side: Optional[OrderSide] = None, quote_asset: Optional[str] = None, buyer_order_id: Optional[str] = None,
+        seller_order_id: Optional[str] = None, height: Optional[str] = None, offset: Optional[int] = 0,
+        limit: Optional[int] = 500, start_time: Optional[int] = None, end_time: Optional[int] = None,
+        total: Optional[int] = 0
+    ):
+        data = {}
+        if address is not None:
+            data['address'] = address
+        if symbol is not None:
+            data['symbol'] = symbol
+        if side is not None:
+            data['side'] = side
+        if quote_asset is not None:
+            data['quoteAsset'] = quote_asset
+        if buyer_order_id is not None:
+            data['buyerOrderId'] = buyer_order_id
+        if seller_order_id is not None:
+            data['sellerOrderId'] = seller_order_id
+        if height is not None:
+            data['height'] = height
+        if offset is not None:
+            data['offset'] = offset
+        if limit is not None:
+            data['limit'] = limit
+        if start_time is not None:
+            data['start'] = start_time
+        if end_time is not None:
+            data['end'] = end_time
+        if total is not None:
+            data['total'] = total
+
+        return await self._get("trades", data=data)
+    get_trades.__doc__ = HttpApiClient.get_trades.__doc__
+
+    async def get_transactions(
+        self, address: str, symbol: Optional[str] = None,
+        side: Optional[TransactionSide] = None, tx_asset: Optional[str] = None,
+        tx_type: Optional[TransactionType] = None, height: Optional[str] = None, offset: Optional[int] = 0,
+        limit: Optional[int] = 500, start_time: Optional[int] = None, end_time: Optional[int] = None
+    ):
+        data = {
+            'address': address
+        }
+        if symbol is not None:
+            data['symbol'] = symbol
+        if side is not None:
+            data['side'] = side
+        if tx_asset is not None:
+            data['txAsset'] = tx_asset
+        if tx_type is not None:
+            data['txType'] = tx_type
+        if height is not None:
+            data['blockHeight'] = height
+        if offset is not None:
+            data['offset'] = offset
+        if limit is not None:
+            data['limit'] = limit
+        if start_time is not None:
+            data['start'] = start_time
+        if end_time is not None:
+            data['end'] = end_time
+
+        return await self._get("transactions", data=data)
+    get_transactions.__doc__ = HttpApiClient.get_transactions.__doc__

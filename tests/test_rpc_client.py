@@ -1,6 +1,6 @@
 import pytest
-from binance_chain.client import HttpApiClient
-from binance_chain.node_rpc import HttpRpcClient
+from binance_chain.http import HttpApiClient
+from binance_chain.node_rpc.http import HttpRpcClient
 from binance_chain.environment import BinanceEnvironment
 from binance_chain.wallet import Wallet
 from binance_chain.constants import PeerType

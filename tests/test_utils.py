@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from binance_chain.utils import encode_number, varint_encode
+from binance_chain.utils.encode_utils import encode_number, varint_encode
 
 
 @pytest.mark.parametrize("num, expected", [

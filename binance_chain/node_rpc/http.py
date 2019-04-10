@@ -1,44 +1,48 @@
 from typing import Optional
 
+import aiohttp
+import asyncio
 from jsonrpcclient.clients.http_client import HTTPClient
+from jsonrpcclient.clients.aiohttp_client import AiohttpClient
 from jsonrpcclient.requests import Request
 
-from .exceptions import BinanceChainRPCException, BinanceChainRequestException
+from binance_chain.exceptions import BinanceChainRPCException, BinanceChainRequestException
 
 
-class RpcClient:
-
-    def __init__(self, endpoint_url):
-
-        self.endpoint_url = endpoint_url
-
-
-class HttpRpcClient(RpcClient):
+class BaseHttpRpcClient:
 
     def __init__(self, endpoint_url):
-        super().__init__(endpoint_url)
+        self._endpoint_url = endpoint_url
 
-        self.client = HTTPClient(endpoint_url)
+        self.client = self._init_client()
 
-    def _request(self, path, **kwargs):
+    def _init_client(self):
+        return HTTPClient(self._endpoint_url)
 
-        # set default requests timeout
-        kwargs['timeout'] = 10
-
-        # # add our global requests params
-        # if self._requests_params:
-        #     kwargs.update(self._requests_params)
+    def _get_rcp_request(self, path, **kwargs):
 
         kwargs['data'] = kwargs.get('data', None)
-        kwargs['headers'] = kwargs.get('headers', None)
-
-        # full_path = self._create_path(path)
-        # uri = self._create_uri(full_path)
 
         rcp_request = Request(path)
         if kwargs['data']:
             rcp_request.update(params=kwargs['data'])
-        response = self.client.send(rcp_request)
+
+        return rcp_request
+
+    def _get_headers(self):
+        return {
+            'Accept': 'application/json',
+            'User-Agent': 'python-binance-chain',
+        }
+
+
+class HttpRpcClient(BaseHttpRpcClient):
+
+    def _request(self, path, **kwargs):
+
+        rcp_request = self._get_rcp_request(path, **kwargs)
+
+        response = self.client.send(rcp_request, headers=self._get_headers())
 
         return self._handle_response(response)
 
@@ -347,5 +351,190 @@ class HttpRpcClient(RpcClient):
         return self._request('tx_search', data=data)
 
 
-class WebsocketRpcClient(RpcClient):
-    pass
+class AsyncHttpRpcClient(BaseHttpRpcClient):
+
+    DEFAULT_TIMEOUT = 10
+
+    @classmethod
+    async def create(cls, endpoint_url):
+
+        return AsyncHttpRpcClient(endpoint_url)
+
+    def _init_client(self):
+
+        loop = asyncio.get_event_loop()
+        aiohttp_session = aiohttp.ClientSession(
+            loop=loop,
+            headers=self._get_headers()
+        )
+        return AiohttpClient(aiohttp_session, self._endpoint_url, timeout=10)
+
+    async def _request(self, path, **kwargs):
+
+        rcp_request = self._get_rcp_request(path, **kwargs)
+        response = await self.client.send(rcp_request, headers=self._get_headers())
+
+        return await self._handle_response(response)
+
+    async def _handle_response(self, response):
+        """Internal helper for handling API responses from the Binance server.
+        Raises the appropriate exceptions when necessary; otherwise, returns the
+        response.
+        """
+
+        try:
+            res = await response.raw.json()
+
+            if 'error' in res and res['error']:
+                raise BinanceChainRPCException(response)
+
+            # by default return full response
+            # if it's a normal response we have a data attribute, return that
+            if 'result' in res:
+                res = res['result']
+            return res
+        except ValueError:
+            raise BinanceChainRequestException('Invalid Response: %s' % response.text)
+
+    async def get_abci_info(self):
+        return await self._request('abci_info')
+    get_abci_info.__doc__ = HttpRpcClient.get_abci_info.__doc__
+
+    async def get_consensus_state(self):
+        return await self._request('consensus_state')
+    get_consensus_state.__doc__ = HttpRpcClient.get_consensus_state.__doc__
+
+    async def dump_consensus_state(self):
+        return await self._request('dump_consensus_state')
+    dump_consensus_state.__doc__ = HttpRpcClient.dump_consensus_state.__doc__
+
+    async def get_genesis(self):
+        return await self._request('genesis')
+    get_genesis.__doc__ = HttpRpcClient.get_genesis.__doc__
+
+    async def get_net_info(self):
+        return await self._request('net_info')
+    get_net_info.__doc__ = HttpRpcClient.get_net_info.__doc__
+
+    async def get_num_unconfirmed_txs(self):
+        return await self._request('num_unconfirmed_txs')
+    get_num_unconfirmed_txs.__doc__ = HttpRpcClient.get_num_unconfirmed_txs.__doc__
+
+    async def get_status(self):
+        return await self._request('status')
+    get_status.__doc__ = HttpRpcClient.get_status.__doc__
+
+    async def get_health(self):
+        return await self._request('health')
+    get_health.__doc__ = HttpRpcClient.get_health.__doc__
+
+    async def get_unconfirmed_txs(self):
+        return await self._request('unconfirmed_txs')
+    get_unconfirmed_txs.__doc__ = HttpRpcClient.get_unconfirmed_txs.__doc__
+
+    async def get_validators(self):
+        return await self._request('validators')
+    get_validators.__doc__ = HttpRpcClient.get_validators.__doc__
+
+    async def abci_query(self, data: str, path: Optional[str] = None,
+                         prove: Optional[bool] = None, height: Optional[int] = None):
+        data = {
+            'data': data
+        }
+        if path:
+            data['path'] = path
+        if prove:
+            data['prove'] = str(prove)
+        if height:
+            data['height'] = str(height)
+
+        return await self._request('abci_query', data=data)
+    abci_query.__doc__ = HttpRpcClient.abci_query.__doc__
+
+    async def get_block(self, height: int):
+        data = {
+            'height': str(height)
+        }
+        return await self._request('block', data=data)
+    get_block.__doc__ = HttpRpcClient.get_block.__doc__
+
+    async def get_block_result(self, height: int):
+        data = {
+            'height': str(height)
+        }
+        return await self._request('block_result', data=data)
+    get_block_result.__doc__ = HttpRpcClient.get_block_result.__doc__
+
+    async def get_block_commit(self, height: int):
+        data = {
+            'height': str(height)
+        }
+        return await self._request('commit', data=data)
+    get_block_commit.__doc__ = HttpRpcClient.get_block_commit.__doc__
+
+    async def get_blockchain_info(self, min_height: int, max_height: int):
+        assert max_height > min_height
+
+        data = {
+            'minHeight': str(min_height),
+            'maxHeight': str(max_height)
+        }
+
+        return await self._request('blockchain', data=data)
+    get_blockchain_info.__doc__ = HttpRpcClient.get_blockchain_info.__doc__
+
+    async def broadcast_tx_async(self, tx: str):
+        data = {
+            'tx': tx
+        }
+        return await self._request('broadcast_tx_async', data=data)
+    broadcast_tx_async.__doc__ = HttpRpcClient.broadcast_tx_async.__doc__
+
+    async def broadcast_tx_commit(self, tx: str):
+        data = {
+            'tx': tx
+        }
+        return await self._request('broadcast_tx_commit', data=data)
+    broadcast_tx_commit.__doc__ = HttpRpcClient.broadcast_tx_commit.__doc__
+
+    async def broadcast_tx_sync(self, tx: str):
+        data = {
+            'tx': tx
+        }
+        return await self._request('broadcast_tx_sync', data=data)
+    broadcast_tx_sync.__doc__ = HttpRpcClient.broadcast_tx_sync.__doc__
+
+    async def get_consensus_params(self, height: Optional[int] = None):
+        data = None
+        if height:
+            data = {
+                'height': str(height)
+            }
+
+        return await self._request('consensus_params', data=data)
+    get_consensus_params.__doc__ = HttpRpcClient.get_consensus_params.__doc__
+
+    async def get_tx(self, tx_hash: str, prove: Optional[bool] = None):
+        data = {
+            'hash': tx_hash
+        }
+        if prove:
+            data['prove'] = str(prove)
+
+        return await self._request('tx', data=data)
+    get_tx.__doc__ = HttpRpcClient.get_tx.__doc__
+
+    async def tx_search(self, query: str, prove: Optional[bool] = None,
+                        page: Optional[int] = None, limit: Optional[int] = None):
+        data = {
+            'query': query
+        }
+        if prove:
+            data['prove'] = str(prove)
+        if page:
+            data['page'] = str(page)
+        if limit:
+            data['limit'] = str(limit)
+
+        return await self._request('tx_search', data=data)
+    tx_search.__doc__ = HttpRpcClient.tx_search.__doc__

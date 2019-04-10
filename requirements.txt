@@ -1,5 +1,6 @@
 requests
-jsonrpcclient[requests,websockets]
+aiohttp
+jsonrpcclient[requests,websockets,aiohttp]
 websockets
 secp256k1
 mnemonic
