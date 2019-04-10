@@ -56,7 +56,8 @@ If having issues with secp256k1 check the `Installation instructions for the sec
 
 .. code:: python
 
-    from binance_chain.client import Client, KlineInterval
+    from binance_chain.http import HttpApiClient
+    from binance_chain.constants import KlineInterval
     from binance_chain.environment import BinanceEnvironment
 
     # initialise with Testnet environment
@@ -67,7 +68,7 @@ If having issues with secp256k1 check the `Installation instructions for the sec
     prod_client = HttpApiClient()
 
     # connect client to different URL
-    client = Client(api_url='https://yournet.com')
+    client = HttpApiClient(api_url='https://yournet.com')
 
     # get node time
     time = client.get_time()
@@ -124,6 +125,45 @@ If having issues with secp256k1 check the `Installation instructions for the sec
     transaction = client.get_transaction('95DD6921370D74D0459590268B439F3DD49F6B1D090121AFE4B2183C040236F3')
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain>`_ docs for more information.
+
+Async HTTP Client
+-----------------
+
+An implementation of the HTTP Client above using aiohttp instead of requests
+
+Use the async `create` classmethod to initialise an instance of the class.
+
+All methods are otherwise the same as the binance_chain.http.HttpApiClient
+
+
+.. code:: python
+
+    from binance_chain.http import AsyncHttpApiClient
+    from binance_chain.environment import BinanceEnvironment
+
+    loop = None
+
+    async def main():
+        global loop
+
+        env = BinanceEnvironment.get_testnet_env()
+
+        # initialise the class using the classmethod
+        client = await AsyncHttpApiClient.create(env)
+        wallet = Wallet(private_key=priv_key, env=env)
+
+        print(json.dumps(await client.get_time(), indent=2))
+
+        while True:
+            print("doing a sleep")
+            await asyncio.sleep(20, loop=loop)
+
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
 
 Environment
 -----------
@@ -199,7 +239,11 @@ Broadcast Messages on HttpApiClient
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.messages>`_ docs for more information.
 
-Requires a Wallet to have been created
+Requires a Wallet to have been created.
+
+The Wallet will increment the request sequence when broadcasting messages through the HttpApiClient.
+
+If the sequence gets out of sync call `wallet.reload_account_sequence(client)`, where client is an instance of HttpApiClient.
 
 **Place Order**
 
@@ -207,7 +251,7 @@ General case
 
 .. code:: python
 
-    from binance_chain.client import HttpApiClient
+    from binance_chain.http import HttpApiClient
     from binance_chain.messages import NewOrderMsg
     from binance_chain.wallet import Wallet
 
@@ -257,7 +301,7 @@ Limit Order Sell
 
 .. code:: python
 
-    from binance_chain.client import HttpApiClient
+    from binance_chain.http import HttpApiClient
     from binance_chain.messages import CancelOrderMsg
     from binance_chain.wallet import Wallet
 
@@ -278,7 +322,7 @@ Limit Order Sell
 
 .. code:: python
 
-    from binance_chain.client import HttpApiClient
+    from binance_chain.http import HttpApiClient
     from binance_chain.messages import FreezeMsg
     from binance_chain.wallet import Wallet
 
@@ -299,7 +343,7 @@ Limit Order Sell
 
 .. code:: python
 
-    from binance_chain.client import HttpApiClient
+    from binance_chain.http import HttpApiClient
     from binance_chain.messages import UnFreezeMsg
     from binance_chain.wallet import Wallet
 
@@ -320,7 +364,7 @@ Limit Order Sell
 
 .. code:: python
 
-    from binance_chain.client import HttpApiClient
+    from binance_chain.http import HttpApiClient
     from binance_chain.messages import TransferMsg
     from binance_chain.wallet import Wallet
 
@@ -352,7 +396,7 @@ See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.ht
     testnet_env = BinanceEnvironment.get_testnet_env()
 
     address = 'tbnb...'
-
+    loop = None
 
     async def main():
         global loop
@@ -388,7 +432,6 @@ See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.ht
 
     # with an existing BinanceChainSocketManager instance
 
-
     await bcsm.unsubscribe_orders()
 
     # can unsubscribe from a particular symbol, after subscribing to multiple
@@ -409,11 +452,11 @@ Node RPC HTTP
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.node_rpc>`_ docs for more information.
 
-The binance_chain.client.HttpApiClient has a helper function get_node_peers() which returns a list of peers with Node RPC functionality
+The binance_chain.http.HttpApiClient has a helper function get_node_peers() which returns a list of peers with Node RPC functionality
 
 .. code:: python
 
-    from binance_chain.client import HttpApiClient, PeerType
+    from binance_chain.http import HttpApiClient, PeerType
     from binance_chain.node_rpc import HttpRpcClient
 
     httpapiclient = HttpApiClient()
@@ -437,6 +480,50 @@ The binance_chain.client.HttpApiClient has a helper function get_node_peers() wh
     validators = rpc_client.get_validators()
 
     block_height = rpc_client.get_block_height(10)
+
+
+Node RPC HTTP Async
+-------------------
+
+An aiohttp implementation of the Node RPC HTTP API.
+
+Use the async `create` classmethod to initialise an instance of the class.
+
+All methods are the same as the binance_chain.node_rpc.http.HttpRpcClient.
+
+.. code:: python
+
+    from binance_chain.node_rpc.http import AsyncHttpRpcClient
+    from binance_chain.http import AsyncHttpApiClient, PeerType
+    from binance_chain.environment import BinanceEnvironment
+
+    loop = None
+
+    async def main():
+        global loop
+
+        testnet_env = BinanceEnvironment.get_testnet_env()
+
+        # create the client using the classmethod
+        http_client = await AsyncHttpApiClient.create(env=testnet_env)
+
+        peers = await http_client.get_peers(peer_type=PeerType.NODE)
+        listen_addr = peers[0]['listen_addr']
+
+        rcp_client = await AsyncHttpRpcClient.create(listen_addr)
+
+        print(json.dumps(await rcp_client.get_abci_info(), indent=2))
+
+        while True:
+            print("doing a sleep")
+            await asyncio.sleep(20, loop=loop)
+
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
 
 
 Donate
