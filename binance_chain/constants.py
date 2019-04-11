@@ -65,3 +65,9 @@ class OrderType(str, Enum):
 class PeerType(str, Enum):
     NODE = 'node'
     WEBSOCKET = 'ws'
+
+
+class RpcBroadcastRequestType(int, Enum):
+    SYNC = 1
+    ASYNC = 2
+    COMMIT = 3

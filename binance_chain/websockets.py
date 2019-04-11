@@ -33,17 +33,21 @@ class ReconnectingWebsocket:
     def _connect(self):
         self._conn = asyncio.ensure_future(self._run())
 
-    def get_ws_endpoint_url(self):
+    def _get_ws_endpoint_url(self):
         return f"{self._env.wss_url}ws"
+
+    def _is_ssl_connection(self):
+        if self._get_ws_endpoint_url().startswith('wss'):
+            return True
+        return False
 
     async def _run(self):
 
         keep_waiting: bool = True
 
-        logging.info(f"connecting to {self.get_ws_endpoint_url()}")
-        async with ws.connect(self.get_ws_endpoint_url(), ssl=True) as socket:
-            self._socket = socket
-            self._reconnect_attempts = 0
+        logging.info(f"connecting to {self._get_ws_endpoint_url()}")
+        async with ws.connect(self._get_ws_endpoint_url(), ssl=self._is_ssl_connection()) as socket:
+            self._on_connect(socket)
 
             try:
                 while keep_waiting:
@@ -54,7 +58,7 @@ class ReconnectingWebsocket:
                         await self.send_keepalive()
                     except asyncio.CancelledError:
                         self._log.debug("cancelled error")
-                        await self._socket.ping()
+                        await self.ping()
                     else:
                         try:
                             evt_obj = json.loads(evt)
@@ -70,6 +74,10 @@ class ReconnectingWebsocket:
                 self._log.debug('ws exception:{}'.format(e))
                 keep_waiting = False
                 await self._reconnect()
+
+    def _on_connect(self, socket):
+        self._socket = socket
+        self._reconnect_attempts = 0
 
     async def _reconnect(self):
         await self.cancel()
@@ -102,6 +110,9 @@ class ReconnectingWebsocket:
         else:
             await self._socket.send(json.dumps(msg, separators=(',', ':'), ensure_ascii=False))
 
+    async def ping(self):
+        await self._socket.ping()
+
     async def cancel(self):
         try:
             self._conn.cancel()
@@ -109,7 +120,7 @@ class ReconnectingWebsocket:
             pass
 
 
-class BinanceChainSocketManager:
+class BinanceChainSocketManagerBase:
 
     def __init__(self, env: BinanceEnvironment):
         """Initialise the BinanceChainSocketManager
@@ -122,13 +133,11 @@ class BinanceChainSocketManager:
         self._log = logging.getLogger(__name__)
 
     @classmethod
-    async def create(cls, loop, callback: Callable[[int], Awaitable[str]], endpoint_url: Optional[str] = None,
-                     env: Optional[BinanceEnvironment] = None):
+    async def create(cls, loop, callback: Callable[[int], Awaitable[str]], env: Optional[BinanceEnvironment] = None):
         """Create a BinanceChainSocketManager instance
 
         :param loop: asyncio loop
         :param callback: async callback function to receive messages
-        :param endpoint_url:
         :param env:
         :return:
         """
@@ -136,12 +145,14 @@ class BinanceChainSocketManager:
         self = BinanceChainSocketManager(env=env)
         self._loop = loop
         self._callback = callback
-        self._endpoint_url = endpoint_url or 'wss://testnet-dex.binance.org/api/'
         self._conn = ReconnectingWebsocket(loop, self._recv, env=env)
         return self
 
     async def _recv(self, msg: Dict):
         await self._callback(msg)
+
+
+class BinanceChainSocketManager(BinanceChainSocketManagerBase):
 
     async def subscribe_market_depth(self, symbols: List[str]):
         """Top 20 levels of bids and asks.

@@ -40,3 +40,6 @@ class BinanceEnvironment:
     @property
     def hrp(self):
         return self._hrp
+
+    def hash(self):
+        return hash(f"{self.api_url}{self.wss_url}{self.hrp}")

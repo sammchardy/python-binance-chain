@@ -3,7 +3,7 @@ import json
 
 class BinanceChainAPIException(Exception):
 
-    def __init__(self, response):
+    def __init__(self, response, status_code):
         self.code = 0
         try:
             json_res = json.loads(response.content)
@@ -12,7 +12,7 @@ class BinanceChainAPIException(Exception):
         else:
             self.code = json_res['code']
             self.message = json_res['message']
-        self.status_code = response.status_code
+        self.status_code = status_code
         self.response = response
         self.request = getattr(response, 'request', None)
 

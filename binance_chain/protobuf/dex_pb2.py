@@ -12,13 +12,17 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+
+
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='dex.proto',
   package='transaction',
   syntax='proto3',
   serialized_options=_b('\n\031com.binance.dex.api.protoB\013TransactionP\001'),
-  serialized_pb=_b('\n\tdex.proto\x12\x0btransaction\"U\n\x05StdTx\x12\x0c\n\x04msgs\x18\x01 \x03(\x0c\x12\x12\n\nsignatures\x18\x02 \x03(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0e\n\x06source\x18\x04 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"f\n\x0cStdSignature\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x11\n\tsignature\x18\x02 \x01(\x0c\x12\x16\n\x0e\x61\x63\x63ount_number\x18\x03 \x01(\x03\x12\x10\n\x08sequence\x18\x04 \x01(\x03\x1a\x08\n\x06PubKey\"\x8d\x01\n\x08NewOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x11\n\tordertype\x18\x04 \x01(\x03\x12\x0c\n\x04side\x18\x05 \x01(\x03\x12\r\n\x05price\x18\x06 \x01(\x03\x12\x10\n\x08quantity\x18\x07 \x01(\x03\x12\x13\n\x0btimeinforce\x18\x08 \x01(\x03\"<\n\x0b\x43\x61ncelOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\r\n\x05refid\x18\x03 \x01(\t\";\n\x0bTokenFreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"=\n\rTokenUnfreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"\x87\x02\n\x04Send\x12\'\n\x06inputs\x18\x01 \x03(\x0b\x32\x17.transaction.Send.Input\x12)\n\x07outputs\x18\x02 \x03(\x0b\x32\x18.transaction.Send.Output\x1a&\n\x05Token\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\x1a@\n\x05Input\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12&\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x17.transaction.Send.Token\x1a\x41\n\x06Output\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12&\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x17.transaction.Send.TokenB*\n\x19\x63om.binance.dex.api.protoB\x0bTransactionP\x01\x62\x06proto3')
+  serialized_pb=_b('\n\tdex.proto\x12\x0btransaction\"U\n\x05StdTx\x12\x0c\n\x04msgs\x18\x01 \x03(\x0c\x12\x12\n\nsignatures\x18\x02 \x03(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0e\n\x06source\x18\x04 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"f\n\x0cStdSignature\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x11\n\tsignature\x18\x02 \x01(\x0c\x12\x16\n\x0e\x61\x63\x63ount_number\x18\x03 \x01(\x03\x12\x10\n\x08sequence\x18\x04 \x01(\x03\x1a\x08\n\x06PubKey\"\x8d\x01\n\x08NewOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x11\n\tordertype\x18\x04 \x01(\x03\x12\x0c\n\x04side\x18\x05 \x01(\x03\x12\r\n\x05price\x18\x06 \x01(\x03\x12\x10\n\x08quantity\x18\x07 \x01(\x03\x12\x13\n\x0btimeinforce\x18\x08 \x01(\x03\"<\n\x0b\x43\x61ncelOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\r\n\x05refid\x18\x03 \x01(\t\";\n\x0bTokenFreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"=\n\rTokenUnfreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"&\n\x05Token\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\";\n\x05Input\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12!\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x12.transaction.Token\"<\n\x06Output\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12!\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x12.transaction.Token\"P\n\x04Send\x12\"\n\x06inputs\x18\x01 \x03(\x0b\x32\x12.transaction.Input\x12$\n\x07outputs\x18\x02 \x03(\x0b\x32\x13.transaction.OutputB*\n\x19\x63om.binance.dex.api.protoB\x0bTransactionP\x01\x62\x06proto3')
 )
+
+
 
 
 _STDTX = _descriptor.Descriptor(
@@ -370,22 +374,22 @@ _TOKENUNFREEZE = _descriptor.Descriptor(
 )
 
 
-_SEND_TOKEN = _descriptor.Descriptor(
+_TOKEN = _descriptor.Descriptor(
   name='Token',
-  full_name='transaction.Send.Token',
+  full_name='transaction.Token',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='denom', full_name='transaction.Send.Token.denom', index=0,
+      name='denom', full_name='transaction.Token.denom', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='amount', full_name='transaction.Send.Token.amount', index=1,
+      name='amount', full_name='transaction.Token.amount', index=1,
       number=2, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -403,26 +407,27 @@ _SEND_TOKEN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=640,
-  serialized_end=678,
+  serialized_start=547,
+  serialized_end=585,
 )
 
-_SEND_INPUT = _descriptor.Descriptor(
+
+_INPUT = _descriptor.Descriptor(
   name='Input',
-  full_name='transaction.Send.Input',
+  full_name='transaction.Input',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='address', full_name='transaction.Send.Input.address', index=0,
+      name='address', full_name='transaction.Input.address', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='coins', full_name='transaction.Send.Input.coins', index=1,
+      name='coins', full_name='transaction.Input.coins', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -440,26 +445,27 @@ _SEND_INPUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=680,
-  serialized_end=744,
+  serialized_start=587,
+  serialized_end=646,
 )
 
-_SEND_OUTPUT = _descriptor.Descriptor(
+
+_OUTPUT = _descriptor.Descriptor(
   name='Output',
-  full_name='transaction.Send.Output',
+  full_name='transaction.Output',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='address', full_name='transaction.Send.Output.address', index=0,
+      name='address', full_name='transaction.Output.address', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='coins', full_name='transaction.Send.Output.coins', index=1,
+      name='coins', full_name='transaction.Output.coins', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -477,9 +483,10 @@ _SEND_OUTPUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=746,
-  serialized_end=811,
+  serialized_start=648,
+  serialized_end=708,
 )
+
 
 _SEND = _descriptor.Descriptor(
   name='Send',
@@ -505,7 +512,7 @@ _SEND = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_SEND_TOKEN, _SEND_INPUT, _SEND_OUTPUT, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=None,
@@ -514,24 +521,24 @@ _SEND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=548,
-  serialized_end=811,
+  serialized_start=710,
+  serialized_end=790,
 )
 
 _STDSIGNATURE_PUBKEY.containing_type = _STDSIGNATURE
-_SEND_TOKEN.containing_type = _SEND
-_SEND_INPUT.fields_by_name['coins'].message_type = _SEND_TOKEN
-_SEND_INPUT.containing_type = _SEND
-_SEND_OUTPUT.fields_by_name['coins'].message_type = _SEND_TOKEN
-_SEND_OUTPUT.containing_type = _SEND
-_SEND.fields_by_name['inputs'].message_type = _SEND_INPUT
-_SEND.fields_by_name['outputs'].message_type = _SEND_OUTPUT
+_INPUT.fields_by_name['coins'].message_type = _TOKEN
+_OUTPUT.fields_by_name['coins'].message_type = _TOKEN
+_SEND.fields_by_name['inputs'].message_type = _INPUT
+_SEND.fields_by_name['outputs'].message_type = _OUTPUT
 DESCRIPTOR.message_types_by_name['StdTx'] = _STDTX
 DESCRIPTOR.message_types_by_name['StdSignature'] = _STDSIGNATURE
 DESCRIPTOR.message_types_by_name['NewOrder'] = _NEWORDER
 DESCRIPTOR.message_types_by_name['CancelOrder'] = _CANCELORDER
 DESCRIPTOR.message_types_by_name['TokenFreeze'] = _TOKENFREEZE
 DESCRIPTOR.message_types_by_name['TokenUnfreeze'] = _TOKENUNFREEZE
+DESCRIPTOR.message_types_by_name['Token'] = _TOKEN
+DESCRIPTOR.message_types_by_name['Input'] = _INPUT
+DESCRIPTOR.message_types_by_name['Output'] = _OUTPUT
 DESCRIPTOR.message_types_by_name['Send'] = _SEND
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -585,36 +592,33 @@ TokenUnfreeze = _reflection.GeneratedProtocolMessageType('TokenUnfreeze', (_mess
   ))
 _sym_db.RegisterMessage(TokenUnfreeze)
 
+Token = _reflection.GeneratedProtocolMessageType('Token', (_message.Message,), dict(
+  DESCRIPTOR = _TOKEN,
+  __module__ = 'dex_pb2'
+  # @@protoc_insertion_point(class_scope:transaction.Token)
+  ))
+_sym_db.RegisterMessage(Token)
+
+Input = _reflection.GeneratedProtocolMessageType('Input', (_message.Message,), dict(
+  DESCRIPTOR = _INPUT,
+  __module__ = 'dex_pb2'
+  # @@protoc_insertion_point(class_scope:transaction.Input)
+  ))
+_sym_db.RegisterMessage(Input)
+
+Output = _reflection.GeneratedProtocolMessageType('Output', (_message.Message,), dict(
+  DESCRIPTOR = _OUTPUT,
+  __module__ = 'dex_pb2'
+  # @@protoc_insertion_point(class_scope:transaction.Output)
+  ))
+_sym_db.RegisterMessage(Output)
+
 Send = _reflection.GeneratedProtocolMessageType('Send', (_message.Message,), dict(
-
-  Token = _reflection.GeneratedProtocolMessageType('Token', (_message.Message,), dict(
-    DESCRIPTOR = _SEND_TOKEN,
-    __module__ = 'dex_pb2'
-    # @@protoc_insertion_point(class_scope:transaction.Send.Token)
-    ))
-  ,
-
-  Input = _reflection.GeneratedProtocolMessageType('Input', (_message.Message,), dict(
-    DESCRIPTOR = _SEND_INPUT,
-    __module__ = 'dex_pb2'
-    # @@protoc_insertion_point(class_scope:transaction.Send.Input)
-    ))
-  ,
-
-  Output = _reflection.GeneratedProtocolMessageType('Output', (_message.Message,), dict(
-    DESCRIPTOR = _SEND_OUTPUT,
-    __module__ = 'dex_pb2'
-    # @@protoc_insertion_point(class_scope:transaction.Send.Output)
-    ))
-  ,
   DESCRIPTOR = _SEND,
   __module__ = 'dex_pb2'
   # @@protoc_insertion_point(class_scope:transaction.Send)
   ))
 _sym_db.RegisterMessage(Send)
-_sym_db.RegisterMessage(Send.Token)
-_sym_db.RegisterMessage(Send.Input)
-_sym_db.RegisterMessage(Send.Output)
 
 
 DESCRIPTOR._options = None

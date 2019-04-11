@@ -1,16 +1,17 @@
 import pytest
 
-from binance_chain.client import HttpApiClient, PeerType
+from binance_chain.http import HttpApiClient
+from binance_chain.constants import PeerType
 from binance_chain.environment import BinanceEnvironment
 
 
 class TestClient:
 
-    @pytest.fixture()
+    @pytest.fixture
     def env(self):
         return BinanceEnvironment.get_testnet_env()
 
-    @pytest.fixture()
+    @pytest.fixture
     def httpclient(self, env):
         return HttpApiClient(env=env)
 

@@ -6,8 +6,11 @@ from collections import OrderedDict
 
 from binance_chain.wallet import Wallet
 from binance_chain.constants import TimeInForce, OrderSide, OrderType
-from binance_chain.dex_pb2 import NewOrder, CancelOrder, TokenFreeze, TokenUnfreeze, StdTx, StdSignature
-from binance_chain.utils import encode_number, varint_encode
+from binance_chain.protobuf.dex_pb2 import (
+    NewOrder, CancelOrder, TokenFreeze, TokenUnfreeze, StdTx, StdSignature, Send, Input, Output, Token
+)
+from binance_chain.utils.encode_utils import encode_number, varint_encode
+from binance_chain.utils.segwit_addr import decode_address
 
 # An identifier for tools triggering broadcast transactions, set to zero if unwilling to disclose.
 BROADCAST_SOURCE = 1
@@ -379,4 +382,66 @@ class PubKeyMsg(Msg):
 
         msg = type_bytes + varint_length + proto
 
+        return msg
+
+
+class TransferMsg(Msg):
+
+    AMINO_MESSAGE_TYPE = b"2A2C87FA"
+
+    def __init__(self, wallet: Wallet, symbol: str, amount: Union[int, float, Decimal],
+                 from_address: str, to_address: str):
+        """Transferring funds between different addresses.
+
+        :param symbol: token symbol, in full name with "-" suffix
+        :param amount: amount of token to freeze
+        :param from_address: amount of token to freeze
+        :param to_address: amount of token to freeze
+        """
+        super().__init__(wallet)
+        self._symbol = symbol
+        self._amount = encode_number(amount)
+        self._from_address = from_address
+        self._to_address = to_address
+
+    def to_dict(self):
+        return OrderedDict([
+            ('inputs', [
+                OrderedDict([
+                    ('address', self._from_address),
+                    ('coins', [
+                        OrderedDict([
+                            ('amount', self._amount),
+                            ('denom', self._symbol)
+                        ])
+                    ])
+                ])
+            ]),
+            ('outputs', [
+                OrderedDict([
+                    ('address', self._to_address),
+                    ('coins', [
+                        OrderedDict([
+                            ('amount', self._amount),
+                            ('denom', self._symbol)
+                        ])
+                    ])
+                ])
+            ])
+        ])
+
+    def to_protobuf(self) -> TokenFreeze:
+        token = Token()
+        token.denom = self._symbol
+        token.amount = self._amount
+        input_addr = Input()
+        input_addr.address = decode_address(self._from_address)
+        input_addr.coins.extend([token])
+        output_addr = Output()
+        output_addr.address = decode_address(self._to_address)
+        output_addr.coins.extend([token])
+
+        msg = Send()
+        msg.inputs.extend([input_addr])
+        msg.outputs.extend([output_addr])
         return msg
