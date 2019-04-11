@@ -1,12 +1,14 @@
-from typing import Optional
+import asyncio
+from typing import Optional, Dict
 
 import aiohttp
-import asyncio
 from jsonrpcclient.clients.http_client import HTTPClient
 from jsonrpcclient.clients.aiohttp_client import AiohttpClient
 from jsonrpcclient.requests import Request
 
 from binance_chain.exceptions import BinanceChainRPCException, BinanceChainRequestException
+from binance_chain.constants import RpcBroadcastRequestType
+from binance_chain.messages import Msg
 
 
 class BaseHttpRpcClient:
@@ -46,6 +48,17 @@ class HttpRpcClient(BaseHttpRpcClient):
 
         return self._handle_response(response)
 
+    def _request_session(self, path, params=None):
+
+        kwargs = {
+            'params': params,
+            'headers': self._get_headers()
+        }
+
+        response = self.client.session.get(f"{self._endpoint_url}/{path}", **kwargs)
+
+        return self._handle_session_response(response)
+
     @staticmethod
     def _handle_response(response):
         """Internal helper for handling API responses from the server.
@@ -67,8 +80,40 @@ class HttpRpcClient(BaseHttpRpcClient):
         except ValueError:
             raise BinanceChainRequestException('Invalid Response: %s' % response.text)
 
+    @staticmethod
+    def _handle_session_response(response):
+        """Internal helper for handling API responses from the server.
+        Raises the appropriate exceptions when necessary; otherwise, returns the
+        response.
+        """
+
+        if not str(response.status_code).startswith('2'):
+            raise BinanceChainRPCException(response)
+        try:
+            res = response.json()
+
+            if 'code' in res and res['code'] != "200000":
+                raise BinanceChainRPCException(response)
+
+            if 'success' in res and not res['success']:
+                raise BinanceChainRPCException(response)
+
+            # by default return full response
+            # if it's a normal response we have a data attribute, return that
+            if 'result' in res:
+                res = res['result']
+            return res
+        except ValueError:
+            raise BinanceChainRequestException('Invalid Response: %s' % response.text)
+
     def get_path_list(self):
-        return self._request('')
+        """Return HTML formatted list of available endpoints
+
+        https://binance-chain.github.io/api-reference/node-rpc.html#get-the-list
+
+        """
+        res = self.client.session.get(self._endpoint_url)
+        return res.content
 
     def get_abci_info(self):
         """Get some info about the application.
@@ -176,7 +221,7 @@ class HttpRpcClient(BaseHttpRpcClient):
 
         return self._request('abci_query', data=data)
 
-    def get_block(self, height: int):
+    def get_block(self, height: Optional[int] = None):
         """Get block at a given height. If no height is provided, it will fetch the latest block.
 
         https://binance-chain.github.io/api-reference/node-rpc.html#block
@@ -186,7 +231,7 @@ class HttpRpcClient(BaseHttpRpcClient):
         """
 
         data = {
-            'height': str(height)
+            'height': str(height) if height else None
         }
 
         return self._request('block', data=data)
@@ -242,50 +287,61 @@ class HttpRpcClient(BaseHttpRpcClient):
 
         return self._request('blockchain', data=data)
 
-    def broadcast_tx_async(self, tx: str):
+    def broadcast_msg(self, msg: Msg, request_type: RpcBroadcastRequestType = RpcBroadcastRequestType.SYNC):
+        """Wrapper function fro broadcasting transactions
+
+        https://binance-chain.github.io/api-reference/node-rpc.html#broadcasttxasync
+
+        RpcBroadcastRequestType
+            SYNC - Returns with the response from CheckTx.
+            ASYNC - Returns right away, with no response
+            COMMIT - only returns error if mempool.CheckTx() errs or if we timeout waiting for tx to commit.
+
+        :param msg: message object to send
+        :param request_type: type of request to make
+        :return:
+        """
+
+        msg.wallet.initialise_wallet()
+        data = msg.to_hex_data().decode()
+
+        tx_data = {
+            'tx': '0x' + data
+        }
+
+        if request_type == RpcBroadcastRequestType.ASYNC:
+            res = self._broadcast_tx_async(tx_data)
+        elif request_type == RpcBroadcastRequestType.COMMIT:
+            res = self._broadcast_tx_commit(tx_data)
+        else:
+            res = self._broadcast_tx_sync(tx_data)
+
+        msg.wallet.increment_account_sequence()
+        return res
+
+    def _broadcast_tx_async(self, tx_data: Dict):
         """Returns right away, with no response
 
         https://binance-chain.github.io/api-reference/node-rpc.html#broadcasttxasync
 
-        tx	str
-
         """
+        return self._request_session("broadcast_tx_async", params=tx_data)
 
-        data = {
-            'tx': tx
-        }
-
-        return self._request('broadcast_tx_async', data=data)
-
-    def broadcast_tx_commit(self, tx: str):
+    def _broadcast_tx_commit(self, tx_data: Dict):
         """CONTRACT: only returns error if mempool.CheckTx() errs or if we timeout waiting for tx to commit.
 
         https://binance-chain.github.io/api-reference/node-rpc.html#broadcasttxcommit
 
-        tx	str
-
         """
+        return self._request_session("broadcast_tx_commit", params=tx_data)
 
-        data = {
-            'tx': tx
-        }
-
-        return self._request('broadcast_tx_commit', data=data)
-
-    def broadcast_tx_sync(self, tx: str):
+    def _broadcast_tx_sync(self, tx_data: Dict):
         """Returns with the response from CheckTx.
 
         https://binance-chain.github.io/api-reference/node-rpc.html#broadcasttxsync
 
-        tx	str
-
         """
-
-        data = {
-            'tx': tx
-        }
-
-        return self._request('broadcast_tx_sync', data=data)
+        return self._request_session("broadcast_tx_sync", params=tx_data)
 
     def get_consensus_params(self, height: Optional[int] = None):
         """Get the consensus parameters at the given block height. If no height is provided, it will fetch the
@@ -376,6 +432,17 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
 
         return await self._handle_response(response)
 
+    async def _request_session(self, path, params=None):
+
+        kwargs = {
+            'params': params,
+            'headers': self._get_headers()
+        }
+
+        response = await self.client.session.get(f"{self._endpoint_url}/{path}", **kwargs)
+
+        return await self._handle_session_response(response)
+
     async def _handle_response(self, response):
         """Internal helper for handling API responses from the Binance server.
         Raises the appropriate exceptions when necessary; otherwise, returns the
@@ -395,6 +462,35 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
             return res
         except ValueError:
             raise BinanceChainRequestException('Invalid Response: %s' % response.text)
+
+    async def _handle_session_response(self, response):
+        """Internal helper for handling API responses from the Binance server.
+        Raises the appropriate exceptions when necessary; otherwise, returns the
+        response.
+        """
+        if not str(response.status).startswith('2'):
+            raise BinanceChainRPCException(response)
+        try:
+            res = await response.json()
+
+            if 'code' in res and res['code'] != "200000":
+                raise BinanceChainRPCException(response)
+
+            if 'success' in res and not res['success']:
+                raise BinanceChainRPCException(response)
+
+            # by default return full response
+            # if it's a normal response we have a data attribute, return that
+            if 'result' in res:
+                res = res['result']
+            return res
+        except ValueError:
+            raise BinanceChainRequestException('Invalid Response: %s' % await response.text())
+
+    async def get_path_list(self):
+        res = await self.client.session.get(self._endpoint_url)
+        return await res.text()
+    get_path_list.__doc__ = HttpRpcClient.get_path_list.__doc__
 
     async def get_abci_info(self):
         return await self._request('abci_info')
@@ -451,9 +547,9 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
         return await self._request('abci_query', data=data)
     abci_query.__doc__ = HttpRpcClient.abci_query.__doc__
 
-    async def get_block(self, height: int):
+    async def get_block(self, height: Optional[int] = None):
         data = {
-            'height': str(height)
+            'height': str(height) if height else None
         }
         return await self._request('block', data=data)
     get_block.__doc__ = HttpRpcClient.get_block.__doc__
@@ -483,26 +579,43 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
         return await self._request('blockchain', data=data)
     get_blockchain_info.__doc__ = HttpRpcClient.get_blockchain_info.__doc__
 
-    async def broadcast_tx_async(self, tx: str):
-        data = {
-            'tx': tx
-        }
-        return await self._request('broadcast_tx_async', data=data)
-    broadcast_tx_async.__doc__ = HttpRpcClient.broadcast_tx_async.__doc__
+    async def broadcast_msg(self, msg: Msg, request_type: RpcBroadcastRequestType = RpcBroadcastRequestType.SYNC):
 
-    async def broadcast_tx_commit(self, tx: str):
-        data = {
-            'tx': tx
-        }
-        return await self._request('broadcast_tx_commit', data=data)
-    broadcast_tx_commit.__doc__ = HttpRpcClient.broadcast_tx_commit.__doc__
+        msg.wallet.initialise_wallet()
+        data = msg.to_hex_data().decode()
 
-    async def broadcast_tx_sync(self, tx: str):
-        data = {
-            'tx': tx
+        tx_data = {
+            'tx': '0x' + data
         }
-        return await self._request('broadcast_tx_sync', data=data)
-    broadcast_tx_sync.__doc__ = HttpRpcClient.broadcast_tx_sync.__doc__
+
+        if request_type == RpcBroadcastRequestType.ASYNC:
+            tx_func = self._broadcast_tx_async
+        elif request_type == RpcBroadcastRequestType.COMMIT:
+            tx_func = self._broadcast_tx_commit
+        else:
+            tx_func = self._broadcast_tx_sync
+        res = await tx_func(tx_data)
+
+        msg.wallet.increment_account_sequence()
+        return res
+    broadcast_msg.__doc__ = HttpRpcClient.broadcast_msg.__doc__
+
+    async def _broadcast_tx_async(self, tx_data: Dict):
+        """Returns right away, with no response
+
+        https://binance-chain.github.io/api-reference/node-rpc.html#broadcasttxasync
+
+        """
+        return await self._request_session('broadcast_tx_async', params=tx_data)
+    _broadcast_tx_async.__doc__ = HttpRpcClient._broadcast_tx_async.__doc__
+
+    async def _broadcast_tx_commit(self, tx_data: Dict):
+        return await self._request_session('broadcast_tx_commit', params=tx_data)
+    _broadcast_tx_commit.__doc__ = HttpRpcClient._broadcast_tx_commit.__doc__
+
+    async def _broadcast_tx_sync(self, tx_data: Dict):
+        return await self._request_session('broadcast_tx_sync', params=tx_data)
+    _broadcast_tx_sync.__doc__ = HttpRpcClient._broadcast_tx_sync.__doc__
 
     async def get_consensus_params(self, height: Optional[int] = None):
         data = None
