@@ -7,11 +7,11 @@ from binance_chain.environment import BinanceEnvironment
 
 class TestClient:
 
-    @pytest.fixture()
+    @pytest.fixture
     def env(self):
         return BinanceEnvironment.get_testnet_env()
 
-    @pytest.fixture()
+    @pytest.fixture
     def httpclient(self, env):
         return HttpApiClient(env=env)
 

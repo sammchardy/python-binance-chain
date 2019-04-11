@@ -17,7 +17,7 @@ class BaseApiClient:
 
     API_VERSION = 'v1'
 
-    def __init__(self, env: Optional[BinanceEnvironment] = None, requests_params: Optional[Dict] = None):
+    def __init__(self, env: Optional[BinanceEnvironment] = None, requests_params: Optional[Dict] = None, **kwargs):
         """Binance Chain API Client constructor
 
         https://binance-chain.github.io/api-reference/dex-api/paths.html
@@ -39,9 +39,9 @@ class BaseApiClient:
 
         self._env = env or BinanceEnvironment.get_production_env()
         self._requests_params = requests_params
-        self.session = self._init_session()
+        self.session = self._init_session(**kwargs)
 
-    def _init_session(self):
+    def _init_session(self, **kwargs):
 
         session = requests.session()
         headers = self._get_headers()
@@ -643,13 +643,16 @@ class HttpApiClient(BaseApiClient):
 class AsyncHttpApiClient(BaseApiClient):
 
     @classmethod
-    async def create(cls, env: Optional[BinanceEnvironment] = None, requests_params: Optional[Dict] = None):
+    async def create(cls,
+                     loop: Optional[asyncio.AbstractEventLoop] = None,
+                     env: Optional[BinanceEnvironment] = None,
+                     requests_params: Optional[Dict] = None):
 
-        return AsyncHttpApiClient(env, requests_params)
+        return AsyncHttpApiClient(env, requests_params, loop=loop)
 
-    def _init_session(self):
+    def _init_session(self, **kwargs):
 
-        loop = asyncio.get_event_loop()
+        loop = kwargs.get('loop', asyncio.get_event_loop())
         session = aiohttp.ClientSession(
             loop=loop,
             headers=self._get_headers()
