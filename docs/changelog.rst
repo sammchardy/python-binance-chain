@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.1.0 - 2010-04-11
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Async versions of HTTP Client
+- Async version of Node RPC Client
+- Node RPC Websocket client
+- Async Depth Cache
+- Transfer message implementation
+- Message broadcast over Node RPC
+
 v0.0.5 - 2010-04-08
 ^^^^^^^^^^^^^^^^^^^
 
