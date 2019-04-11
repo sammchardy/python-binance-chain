@@ -27,16 +27,27 @@ Source code
 Features
 --------
 
-- Support for Testnet and Production environments, along with user defined environment
-- HTTP API endpoints
-- HTTP RPC Node endpoints
-- Async Websockets
-- Wallet creation from private key or mnemonic or new wallet with random mnemonic
+- Support for Testnet and Production `environments <#environments>`_, along with user defined environment
+- HTTP API `sync <#quick-start>`_ and `async <#async-http-client>`_ implementations
+- HTTP RPC Node `sync <#node-rpc-http>`_ and `async <#node-rpc-http-async>`_ implementations
+- `Async Websockets <#websockets>`_
+- `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
-- Broadcast Transactions with helper functions for limit buy and sell
+- Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <>`_ with helper classes for limit buy and sell
+- Async `Depth Cache <#depth-cache>`_
 - Response exception handling
 
 Read the `Changelog <https://python-binance-chain.readthedocs.io/en/latest/changelog.html>`_
+
+
+Recommended Resources
+---------------------
+
+- `Binance Chain Forum <https://community.binance.org/>`_
+- `Binance Chain Telegram <https://t.me/BinanceDEXchange>`_
+- `Binance Chain API <https://binance-chain.github.io/>`_
+- `Tendermint Docs <https://tendermint.com/docs/>`_
+- `Get Testnet Funds <https://www.binance.vision/tutorials/binance-dex-funding-your-testnet-account>`_
 
 TODO
 ----
@@ -165,10 +176,10 @@ All methods are otherwise the same as the binance_chain.http.HttpApiClient
         loop.run_until_complete(main())
 
 
-Environment
------------
+Environments
+------------
 
-Binance Chain offers a Testnet and a coming Production system.
+Binance Chain offers a Testnet and an upcoming Production system.
 
 To interact with Binance Chain now you must use the Testnet environment for the HttpApiClient, Websocket and the Wallet.
 
@@ -462,7 +473,7 @@ The binance_chain.http.HttpApiClient has a helper function get_node_peers() whic
     httpapiclient = HttpApiClient()
 
     # get a peer that support node requests
-    peers = httpapiclient.get_peers(peer_type=PeerType.NODE)
+    peers = httpapiclient.get_node_peers()
     listen_addr = peers[0]['listen_addr']
 
     # connect to this peer
@@ -507,7 +518,7 @@ All methods are the same as the binance_chain.node_rpc.http.HttpRpcClient.
         # create the client using the classmethod
         http_client = await AsyncHttpApiClient.create(env=testnet_env)
 
-        peers = await http_client.get_peers(peer_type=PeerType.NODE)
+        peers = await http_client.get_node_peers()
         listen_addr = peers[0]['listen_addr']
 
         rcp_client = await AsyncHttpRpcClient.create(listen_addr)
@@ -524,6 +535,88 @@ All methods are the same as the binance_chain.node_rpc.http.HttpRpcClient.
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
 
+
+Broadcast Messages on Node RPC HTTP Client
+------------------------------------------
+
+Requires a Wallet to have been created
+
+The Wallet will increment the request sequence when broadcasting messages through the HttpApiClient.
+
+If the sequence gets out of sync call `wallet.reload_account_sequence(client)`, where client is an instance of HttpApiClient.
+
+**Place Order**
+
+.. code:: python
+
+    from binance_chain.node_rpc import HttpRpcClient
+    from binance_chain.messages import LimitOrderBuyMsg
+    from binance_chain.wallet import Wallet
+    from binance_chain.constants import RpcBroadcastRequestType
+
+    wallet = Wallet('private_key_string')
+    rpc_client = HttpRpcClient(listen_addr)
+
+    limit_order_msg = LimitOrderBuyMsg(
+        wallet=wallet,
+        symbol='ANN-457_BNB',
+        price=0.000396000,
+        quantity=12
+    )
+
+    # then broadcast it, by default in synchronous mode
+    res = rpc_client.broadcast_msg(limit_order_msg)
+
+    # alternative async request
+    res = rpc_client.broadcast_msg(new_order_msg, request_type=RpcBroadcastRequestType.ASYNC)
+
+    # or commit request
+    res = rpc_client.broadcast_msg(new_order_msg, request_type=RpcBroadcastRequestType.COMMIT)
+
+Other messages can be constructed similar to examples above
+
+Depth Cache
+-----------
+
+Follow the order book for a specified trading pair.
+
+Note: This may not be 100% reliable as the response info available from Binance Chain may not always match up
+
+.. code:: python
+
+
+    from binance_chain.depthcache import DepthCacheManager
+    from binance_chain.environment import BinanceEnvironment
+    from binance_chain.http import HttpApiClient
+
+    dcm = None
+    loop = None
+
+
+    async def main():
+        global dcm1, loop
+
+        async def process_depth(depth_cache):
+            print("symbol {}".format(depth_cache.symbol))
+            print("1: top 5 asks")
+            print(depth_cache.get_asks()[:5])
+            print("1: top 5 bids")
+            print(depth_cache.get_bids()[:5])
+
+        env = BinanceEnvironment.get_testnet_env()
+        client = HttpApiClient(env=env)
+
+        dcm = await DepthCacheManager.create(client, loop, "100K-9BC_BNB", process_depth, env=env)
+
+        while True:
+            print("doing a sleep")
+            await asyncio.sleep(20, loop=loop)
+
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
 
 
 Donate
