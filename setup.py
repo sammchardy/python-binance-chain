@@ -2,7 +2,7 @@
 import codecs
 import os
 import re
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,7 +33,7 @@ def install_requires():
 setup(
     name='python-binance-chain',
     version=find_version("binance_chain", "__init__.py"),
-    packages=['binance_chain/*'],
+    packages=find_packages(),
     description='Binance Chain HTTP API python implementation',
     url='https://github.com/sammchardy/python-binance-chain',
     author='Sam McHardy',
