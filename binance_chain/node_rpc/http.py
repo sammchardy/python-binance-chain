@@ -352,12 +352,9 @@ class HttpRpcClient(BaseHttpRpcClient):
         height: int
 
         """
-
-        data = None
-        if height:
-            data = {
-                'height': str(height)
-            }
+        data = {
+            'height': str(height) if height else None
+        }
 
         return self._request('consensus_params', data=data)
 
@@ -618,11 +615,9 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
     _broadcast_tx_sync.__doc__ = HttpRpcClient._broadcast_tx_sync.__doc__
 
     async def get_consensus_params(self, height: Optional[int] = None):
-        data = None
-        if height:
-            data = {
-                'height': str(height)
-            }
+        data = {
+            'height': str(height) if height else None
+        }
 
         return await self._request('consensus_params', data=data)
     get_consensus_params.__doc__ = HttpRpcClient.get_consensus_params.__doc__

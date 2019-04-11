@@ -55,6 +55,24 @@ node rpc http module
     :show-inheritance:
     :member-order: bysource
 
+node rpc websockets module
+--------------------------
+
+.. automodule:: binance_chain.node_rpc.websockets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
+deptch cache module
+--------------------------
+
+.. automodule:: binance_chain.depthcache
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
 constants module
 ----------------------
 

@@ -29,8 +29,9 @@ Features
 
 - Support for Testnet and Production `environments <#environments>`_, along with user defined environment
 - HTTP API `sync <#quick-start>`_ and `async <#async-http-client>`_ implementations
-- HTTP RPC Node `sync <#node-rpc-http>`_ and `async <#node-rpc-http-async>`_ implementations
 - `Async Websockets <#websockets>`_
+- HTTP RPC Node `sync <#node-rpc-http>`_ and `async <#node-rpc-http-async>`_ implementations
+- `Async Node RPC Websockets <#node-rpc-websockets>`_
 - `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
 - Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <>`_ with helper classes for limit buy and sell
@@ -49,11 +50,6 @@ Recommended Resources
 - `Tendermint Docs <https://tendermint.com/docs/>`_
 - `Get Testnet Funds <https://www.binance.vision/tutorials/binance-dex-funding-your-testnet-account>`_
 
-TODO
-----
-
-- Implement RPC websockets
-- more things...
 
 Quick Start
 -----------
@@ -118,10 +114,10 @@ If having issues with secp256k1 check the `Installation instructions for the sec
     open_orders = client.get_open_orders('tbnb185tqzq3j6y7yep85lncaz9qeectjxqe5054cgn')
 
     # get open orders
-    print(json.dumps(client.get_ticker('NNB-0AD_BNB'), indent=2))
+    ticker = client.get_ticker('NNB-0AD_BNB')
 
     # get open orders
-    print(json.dumps(client.get_trades(limit=2), indent=2))
+    trades = client.get_trades(limit=2)
 
     # get open orders
     order = client.get_order('9D0537108883C68B8F43811B780327CE97D8E01D-2')
@@ -225,6 +221,8 @@ see examples below
 
 **Initialise from Mnemonic**
 
+.. code:: python
+
     from binance_chain.wallet import Wallet
     from binance_chain.environment import BinanceEnvironment
 
@@ -235,6 +233,8 @@ see examples below
     print(wallet.public_key_hex)
 
 **Initialise by generating a random Mneomonic**
+
+.. code:: python
 
     from binance_chain.wallet import Wallet
     from binance_chain.environment import BinanceEnvironment
@@ -282,7 +282,7 @@ General case
     # then broadcast it
     res = client.broadcast_msg(new_order_msg, sync=True)
 
-Limit Order Buy
+**Limit Order Buy**
 
 .. code:: python
 
@@ -295,7 +295,7 @@ Limit Order Buy
         quantity=12
     )
 
-Limit Order Sell
+**Limit Order Sell**
 
 .. code:: python
 
@@ -574,6 +574,75 @@ If the sequence gets out of sync call `wallet.reload_account_sequence(client)`, 
     res = rpc_client.broadcast_msg(new_order_msg, request_type=RpcBroadcastRequestType.COMMIT)
 
 Other messages can be constructed similar to examples above
+
+Node RPC Websockets
+-------------------
+
+See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.node_rpc.websockets>`_ docs for more information.
+
+.. code:: python
+
+    import asyncio
+
+    from binance_chain.http import HttpApiClient
+    from binance_chain.environment import BinanceEnvironment
+    from binance_chain.node_rpc.websockets import WebsocketRpcClient
+
+    loop = None
+
+    async def main():
+        global loop
+
+        async def handle_evt(msg):
+            print(msg)
+
+        # find node peers on testnet
+        testnet_env = BinanceEnvironment.get_testnet_env()
+        client = HttpApiClient(testnet_env)
+
+        peers = client.get_node_peers()
+
+        # construct websocket listen address - may not be correct
+        listen_addr = re.sub(r"^https?:\/\/", "tcp://", peers[0]['listen_addr'])
+
+        # create custom environment for RPC Websocket
+        node_env = BinanceEnvironment(
+            api_url=testnet_env.api_url,
+            wss_url=listen_addr,
+            hrp=testnet_env.hrp
+        )
+
+        wrc = await WebsocketRpcClient.create(loop, handle_evt, env=node_env)
+
+        await wrc.subscribe('NewBlock')
+        await wrc.abci_info()
+
+        while True:
+            print("sleeping to keep loop open")
+            await asyncio.sleep(20, loop=loop)
+
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
+**Unsubscribe**
+
+.. code:: python
+
+    # with an existing WebsocketRpcClient instance
+
+    await wrc.unsubscribe('NewBlock')
+
+**Unsubscribe All**
+
+.. code:: python
+
+    # with an existing WebsocketRpcClient instance
+
+    await wrc.unsubscribe_all()
+
 
 Depth Cache
 -----------

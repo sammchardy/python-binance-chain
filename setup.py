@@ -24,8 +24,8 @@ def find_version(*file_paths):
 def install_requires():
 
     requires = [
-        'requests', 'websockets', 'aiohttp', 'jsonrpcclient[requests,websockets]', 'secp256k1',
-        'protobuf', 'mnemonic', 'pywallet'
+        'pywallet', 'requests', 'websockets', 'aiohttp', 'jsonrpcclient[requests,websockets]', 'secp256k1',
+        'protobuf', 'mnemonic'
     ]
     return requires
 

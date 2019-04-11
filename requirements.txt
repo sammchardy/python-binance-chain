@@ -1,8 +1,8 @@
+pywallet
 requests
 aiohttp
 jsonrpcclient[requests,websockets,aiohttp]
 websockets
 secp256k1
 mnemonic
-pywallet
 protobuf>=3.6.1
