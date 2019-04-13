@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.1.1 - 2010-04-13
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Broadcast message taking signed hex data
+
 v0.1.0 - 2010-04-11
 ^^^^^^^^^^^^^^^^^^^
 

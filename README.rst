@@ -1,5 +1,5 @@
 ======================================
-Welcome to python-binance-chain v0.1.0
+Welcome to python-binance-chain v0.1.1
 ======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg
@@ -34,7 +34,7 @@ Features
 - `Async Node RPC Websockets <#node-rpc-websockets>`_
 - `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
-- Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <>`_ with helper classes for limit buy and sell
+- Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <#node-rpc-http>`_ with helper classes for limit buy and sell
 - Async `Depth Cache <#depth-cache>`_
 - Response exception handling
 
