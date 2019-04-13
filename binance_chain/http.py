@@ -336,6 +336,7 @@ class HttpApiClient(BaseApiClient):
             # new order example
             # construct the message
             new_order_msg = NewOrderMsg(
+                wallet=wallet,
                 symbol="ANN-457_BNB",
                 time_in_force=TimeInForce.GTE,
                 order_type=OrderType.LIMIT,
@@ -344,14 +345,15 @@ class HttpApiClient(BaseApiClient):
                 quantity=Decimal(12)
             )
             # then broadcast it
-            res = client.broadcast_msg(new_order_msg, wallet)
+            res = client.broadcast_msg(new_order_msg, sync=True)
 
             # cancel order example
             cancel_order_msg = CancelOrderMsg(
+                wallet=wallet,
                 order_id="09F8B32D33CBE2B546088620CBEBC1FF80F9BE001ACF42762B0BBFF0A729CE3",
                 symbol='ANN-457_BNB',
             )
-            res = client.broadcast_msg(cancel_order_msg, wallet)
+            res = client.broadcast_msg(cancel_order_msg, sync=True)
 
         :return: API Response
 
@@ -374,6 +376,53 @@ class HttpApiClient(BaseApiClient):
 
         res = self._post(req_path, data=data)
         msg.wallet.increment_account_sequence()
+        return res
+
+    def broadcast_hex_msg(self, hex_msg: str, sync: bool = False):
+        """Broadcast a message in hex format
+
+        This may have been generated internally or by a signing service
+
+        It is up to the user to keep track of the account sequence when using this method
+
+        https://binance-chain.github.io/api-reference/dex-api/paths.html#apiv1broadcast
+
+        :param hex_msg: signed message string
+        :param sync: Synchronous broadcast (wait for DeliverTx)?
+
+        .. code:: python
+
+            # new order example
+            # construct the message
+            new_order_msg = NewOrderMsg(
+                symbol="ANN-457_BNB",
+                time_in_force=TimeInForce.GTE,
+                order_type=OrderType.LIMIT,
+                side=OrderSide.BUY,
+                price=Decimal(0.000396000),
+                quantity=Decimal(12)
+            )
+
+            # then broadcast it
+            res = client.broadcast_hex_msg(hex_msg=new_order_msg.to_hex_data(), sync=True)
+
+            #
+
+            # cancel order example
+            cancel_order_msg = CancelOrderMsg(
+                order_id="09F8B32D33CBE2B546088620CBEBC1FF80F9BE001ACF42762B0BBFF0A729CE3",
+                symbol='ANN-457_BNB',
+            )
+            res = client.broadcast_msg(cancel_order_msg.to_hex_data(), sync=True)
+
+        :return: API Response
+
+        """
+        req_path = 'broadcast'
+        if sync:
+            req_path += f'?sync=1'
+
+        res = self._post(req_path, data=hex_msg)
         return res
 
     def get_klines(self, symbol: str, interval: KlineInterval, limit: Optional[int] = 300,
@@ -784,6 +833,15 @@ class AsyncHttpApiClient(BaseApiClient):
 
         res = await self._post(req_path, data=data)
         msg.wallet.increment_account_sequence()
+        return res
+    broadcast_msg.__doc__ = HttpApiClient.broadcast_msg.__doc__
+
+    async def broadcast_hex_msg(self, hex_msg: str, sync: bool = False):
+        req_path = 'broadcast'
+        if sync:
+            req_path += f'?sync=1'
+
+        res = await self._post(req_path, data=hex_msg)
         return res
     broadcast_msg.__doc__ = HttpApiClient.broadcast_msg.__doc__
 
