@@ -163,14 +163,12 @@ class TestMessages:
         wallet._sequence = 2
 
         symbol = 'BNB'
-        from_address = 'tbnb18fhdlzyqj360nympg5ejl7c5g4frlzheuealvg'
         to_address = 'tbnb10a6kkxlf823w9lwr6l9hzw4uyphcw7qzrud5rr'
         amount = 1
 
         msg = TransferMsg(
             wallet=wallet,
             symbol=symbol,
-            from_address=from_address,
             to_address=to_address,
             amount=amount
         )
