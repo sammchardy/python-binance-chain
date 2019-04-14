@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.1.2 - 2010-04-14
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Binance Chain Signing Service Interfaces
+
+**Updated**
+
+- Cleaned up TransferMsg as from_address is found from wallet instance
+
 v0.1.1 - 2010-04-13
 ^^^^^^^^^^^^^^^^^^^
 
