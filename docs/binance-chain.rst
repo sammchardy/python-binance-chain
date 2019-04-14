@@ -64,6 +64,15 @@ node rpc websockets module
     :show-inheritance:
     :member-order: bysource
 
+signing service http module
+---------------------------
+
+.. automodule:: binance_chain.signing.http
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
+
 deptch cache module
 --------------------------
 

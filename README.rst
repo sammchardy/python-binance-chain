@@ -36,6 +36,7 @@ Features
 - Wallet handling account sequence for transactions
 - Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <#node-rpc-http>`_ with helper classes for limit buy and sell
 - Async `Depth Cache <#depth-cache>`_
+- `Signing Service Support <#signing-service>`_ for `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_
 - Response exception handling
 
 Read the `Changelog <https://python-binance-chain.readthedocs.io/en/latest/changelog.html>`_
@@ -386,7 +387,6 @@ General case
         wallet=wallet,
         symbol='BNB',
         amount=1,
-        from_address='<from address>',
         to_address='<to address>'
     )
     res = client.broadcast_msg(transfer_msg, sync=True)
@@ -676,6 +676,131 @@ Note: This may not be 100% reliable as the response info available from Binance 
         client = HttpApiClient(env=env)
 
         dcm = await DepthCacheManager.create(client, loop, "100K-9BC_BNB", process_depth, env=env)
+
+        while True:
+            print("doing a sleep")
+            await asyncio.sleep(20, loop=loop)
+
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
+
+Signing Service
+---------------
+
+A Service to sign and optionally also broadcast messages for you.
+
+The service holds the private keys of the accounts and supplies a username and password to interact with these accounts.
+
+This client re-uses the binance_chain.messages types. In this case no wallet parameter is required.
+
+This client interacts with the `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_ read the docs there
+to create our own signing service.
+
+**Signing and then broadcasting**
+
+.. code:: python
+
+    from binance_chain.messages import NewOrderMsg
+    from binance_chain.signing.http import HttpApiSigningClient
+
+    signing_client = HttpApiSigningClient('http://localhost:8000', username='sam', password='mypass')
+
+    # print(client.signing_service_auth())
+
+    new_order_msg = NewOrderMsg(
+        symbol='ANN-457_BNB',
+        order_type=OrderType.LIMIT,
+        side=OrderSide.BUY,
+        price=0.000396000,
+        quantity=10,
+        time_in_force=TimeInForce.GOOD_TILL_EXPIRE
+    )
+    new_order_hex = signing_client.sign_order(new_order_msg, wallet_name='wallet_1')
+
+the `sign_order` method can also take a binance_chain.messages.LimitOrderBuyMsg or binance_chain.messages.LimitOrderSellMsg instance.
+
+
+This hex can then be broadcast using the normal HTTP Client like so
+
+
+.. code:: python
+
+    from binance_chain.http import HttpApiClient
+    from binance_chain.environment import BinanceEnvironment
+
+    # initialise with environment that is supported by the signing service wallet
+    testnet_env = BinanceEnvironment.get_testnet_env()
+    client = HttpApiClient(env=testnet_env)
+
+    res = client.broadcast_hex_msg(new_order_hex['signed_msg'], sync=True)
+
+The signing service supports binance_chain.messages types
+NewOrderMsg, CancelOrderMsg, FreezeMsg, UnFreezeMsg and TransferMsg
+
+
+**Signing and broadcasting in one**
+
+To sign and broadcast an order use the `broadcast_order` method. This returns the response from the Binance Chain exchange.
+
+.. code:: python
+
+    from binance_chain.messages import NewOrderMsg
+    from binance_chain.signing.http import HttpApiSigningClient
+
+    signing_client = HttpApiSigningClient('http://localhost:8000', username='sam', password='mypass')
+
+    # print(client.signing_service_auth())
+
+    new_order_msg = NewOrderMsg(
+        symbol='ANN-457_BNB',
+        order_type=OrderType.LIMIT,
+        side=OrderSide.BUY,
+        price=0.000396000,
+        quantity=10,
+        time_in_force=TimeInForce.GOOD_TILL_EXPIRE
+    )
+    res = signing_client.broadcast_order(new_order_msg, wallet_name='wallet_1')
+
+
+Async Signing Service
+---------------------
+
+Like all other libraries there is an async version.
+
+.. code:: python
+
+    from binance_chain.signing.http import AsyncHttpApiSigningClient
+    from binance_chain.http import AsyncHttpApiClient, PeerType
+    from binance_chain.environment import BinanceEnvironment
+
+    loop = None
+
+    async def main():
+        global loop
+
+        # create the client using the classmethod
+        signing_client = await AsyncHttpApiSigningClient.create('http://localhost:8000', username='sam', password='mypass')
+
+        new_order_msg = NewOrderMsg(
+            symbol='ANN-457_BNB',
+            order_type=OrderType.LIMIT,
+            side=OrderSide.BUY,
+            price=0.000396000,
+            quantity=10,
+            time_in_force=TimeInForce.GOOD_TILL_EXPIRE
+        )
+
+        # simply sign the message
+        sign_res = await signing_client.sign_order(new_order_msg, wallet_name='wallet_1')
+
+        # or broadcast it as well
+        broadcast_res = await signing_client.broadcast_order(new_order_msg, wallet_name='wallet_1')
+
+        print(json.dumps(await rcp_client.get_abci_info(), indent=2))
 
         while True:
             print("doing a sleep")
