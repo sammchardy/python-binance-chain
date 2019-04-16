@@ -1,12 +1,20 @@
 Changelog
 =========
 
+v0.1.3 - 2010-04-16
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Wallet methods for Binance Signing Service v0.0.2
+
+
 v0.1.2 - 2010-04-14
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
 
-- Binance Chain Signing Service Interfaces
+- Binance Chain Signing Service Interfaces v0.0.1
 
 **Updated**
 
