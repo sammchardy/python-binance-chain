@@ -369,7 +369,7 @@ class SignatureMsg(Msg):
         super().__init__(msg.wallet)
         self._signature = Signature(msg)
 
-    def to_protobuf(self) -> NewOrder:
+    def to_protobuf(self) -> StdSignature:
         pub_key_msg = PubKeyMsg(self._wallet)
         std_sig = StdSignature()
         std_sig.sequence = self._wallet.sequence
@@ -393,7 +393,7 @@ class StdTxMsg(Msg):
         self._memo = memo
         self._source = BROADCAST_SOURCE
 
-    def to_protobuf(self) -> NewOrder:
+    def to_protobuf(self) -> StdTx:
         stdtx = StdTx()
         stdtx.msgs.extend([self._msg.to_amino()])
         stdtx.signatures.extend([self._signature.to_amino()])
@@ -477,7 +477,7 @@ class TransferMsg(Msg):
             'denom': self._symbol,
         }
 
-    def to_protobuf(self) -> TokenFreeze:
+    def to_protobuf(self) -> Send:
         token = Token()
         token.denom = self._symbol
         token.amount = self._amount_amino

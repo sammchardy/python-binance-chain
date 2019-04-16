@@ -71,3 +71,10 @@ class RpcBroadcastRequestType(int, Enum):
     SYNC = 1
     ASYNC = 2
     COMMIT = 3
+
+
+class VoteOption(int, Enum):
+    YES = 1
+    ABSTAIN = 2
+    NO = 3
+    NO_WITH_VETO = 4
