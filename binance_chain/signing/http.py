@@ -97,6 +97,7 @@ class HttpApiSigningClient(BaseApiSigningClient):
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
+
         if not str(response.status_code).startswith('2'):
             raise BinanceChainAPIException(response, response.status_code)
         try:
@@ -378,6 +379,44 @@ class HttpApiSigningClient(BaseApiSigningClient):
         }
         return self._post('unfreeze/broadcast', json=data)
 
+    def wallet_resync(self, wallet_name: str):
+        """Resynchronise the wallet to the chain
+
+        :param wallet_name:
+
+        .. code:: python
+
+            res = client.wallet_resync(wallet_name='mywallet')
+
+        :return: API Response
+
+        """
+        data = {
+            'wallet_name': wallet_name
+        }
+        return self._post('wallet/resync', json=data)
+
+    def wallet_info(self, wallet_name: Optional[str] = None):
+        """Get wallet information for the currently authenticated user
+
+        :param wallet_name: Optional- if not passed returns all walets
+
+        .. code:: python
+
+            # info about all wallets
+            res_all = client.wallet_info()
+
+            # info about particular wallets
+            res_mywallet = client.wallet_info(wallet_name='mywallet')
+
+        :return: API Response
+
+        """
+        req_path = 'wallet'
+        if wallet_name:
+            req_path = f'wallet/{wallet_name}'
+        return self._get(req_path)
+
 
 class AsyncHttpApiSigningClient(BaseApiSigningClient):
 
@@ -537,3 +576,17 @@ class AsyncHttpApiSigningClient(BaseApiSigningClient):
         }
         return await self._post('unfreeze/broadcast', json=data)
     broadcast_unfreeze.__doc__ = HttpApiSigningClient.broadcast_unfreeze.__doc__
+
+    async def wallet_resync(self, wallet_name: str):
+        data = {
+            'wallet_name': wallet_name
+        }
+        return await self._post('wallet/resync', json=data)
+    wallet_resync.__doc__ = HttpApiSigningClient.wallet_resync.__doc__
+
+    async def wallet_info(self, wallet_name: Optional[str] = None):
+        req_path = 'wallet'
+        if wallet_name:
+            req_path = f'wallet/{wallet_name}'
+        return await self._get(req_path)
+    wallet_info.__doc__ = HttpApiSigningClient.wallet_info.__doc__
