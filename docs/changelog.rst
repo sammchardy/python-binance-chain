@@ -1,13 +1,19 @@
 Changelog
 =========
 
+v0.1.4 - 2010-04-16
+^^^^^^^^^^^^^^^^^^^
+
+**Fixed**
+
+- Issue with protobuf file
+
 v0.1.3 - 2010-04-16
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
 
 - Wallet methods for Binance Signing Service v0.0.2
-
 
 v0.1.2 - 2010-04-14
 ^^^^^^^^^^^^^^^^^^^
