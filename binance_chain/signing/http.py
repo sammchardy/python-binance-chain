@@ -82,11 +82,8 @@ class HttpApiSigningClient(BaseApiSigningClient):
     def _request(self, method, path, **kwargs):
 
         uri = self._create_uri(path)
-        print(f"uri:{uri}")
 
         kwargs = self._get_request_kwargs(method, **kwargs)
-
-        print(f"kwargs:{kwargs}")
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
@@ -96,6 +93,7 @@ class HttpApiSigningClient(BaseApiSigningClient):
         """Internal helper for handling API responses from the server.
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
+
         """
 
         if not str(response.status_code).startswith('2'):

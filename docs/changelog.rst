@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.1.6 - 2010-04-17
+^^^^^^^^^^^^^^^^^^^
+
+**Updated**
+
+- fix package requirement versions
+
 v0.1.5 - 2010-04-17
 ^^^^^^^^^^^^^^^^^^^
 
