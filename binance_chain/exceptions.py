@@ -8,7 +8,10 @@ class BinanceChainAPIException(Exception):
         try:
             json_res = json.loads(response.content)
         except ValueError:
-            self.message = 'Invalid JSON error message from Binance Chain: {}'.format(response.text)
+            if not response.content:
+                self.message = status_code
+            else:
+                self.message = 'Invalid JSON error message from Binance Chain: {}'.format(response.text)
         else:
             self.code = json_res.get('code', None)
             self.message = json_res['message']
