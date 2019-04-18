@@ -1,6 +1,10 @@
+import itertools
+
 import pytest
+
 from binance_chain.http import HttpApiClient
 from binance_chain.node_rpc.http import HttpRpcClient, AsyncHttpRpcClient
+from binance_chain.node_rpc.request import RpcRequest
 from binance_chain.environment import BinanceEnvironment
 from binance_chain.wallet import Wallet
 from binance_chain.constants import PeerType
@@ -85,3 +89,17 @@ class TestAsyncHttpRpcClient:
         assert await rpcclient.get_block()
 
         assert await rpcclient.get_block(10000)
+
+
+class TestRpcRequest:
+
+    def test_json_string_building(self):
+        # reset id count
+        RpcRequest.id_generator = itertools.count(1)
+        req = RpcRequest("mymethod", {'param1': 'this', 'otherparam': 'that'})
+
+        assert str(req) == '{"jsonrpc":"2.0","method":"mymethod","params":{"param1":"this","otherparam":"that"},"id":1}'
+
+        req2 = RpcRequest("mymethod", {'param1': 'this', 'otherparam': 'that'})
+        assert str(req2) == \
+               '{"jsonrpc":"2.0","method":"mymethod","params":{"param1":"this","otherparam":"that"},"id":2}'
