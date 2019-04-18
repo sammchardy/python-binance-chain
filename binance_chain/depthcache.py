@@ -10,6 +10,8 @@ from binance_chain.environment import BinanceEnvironment
 
 class DepthCache(object):
 
+    clear_price = "0.00000000"
+
     def __init__(self, symbol):
         """Initialise the DepthCache
 
@@ -29,7 +31,7 @@ class DepthCache(object):
         :return:
 
         """
-        if bid[1] == "0.00000000":
+        if bid[1] == self.clear_price:
             del self._bids[bid[0]]
         else:
             self._bids[bid[0]] = bid[1]
@@ -41,7 +43,7 @@ class DepthCache(object):
         :return:
 
         """
-        if ask[1] == "0.00000000":
+        if ask[1] == self.clear_price:
             del self._asks[ask[0]]
         else:
             self._asks[ask[0]] = ask[1]
