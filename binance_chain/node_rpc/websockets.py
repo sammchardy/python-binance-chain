@@ -1,36 +1,23 @@
 import asyncio
 from typing import Callable, Awaitable, Optional, Dict
 
-from jsonrpcclient.clients.websockets_client import WebSocketsClient
-from jsonrpcclient.requests import Request
+import websockets as ws
 
 from binance_chain.node_rpc.http import HttpRpcClient
 from binance_chain.websockets import ReconnectingWebsocket, BinanceChainSocketManagerBase
 from binance_chain.environment import BinanceEnvironment
 from binance_chain.constants import RpcBroadcastRequestType
 from binance_chain.messages import Msg
+from binance_chain.node_rpc.request import RpcRequest
 
 
 class ReconnectingRpcWebsocket(ReconnectingWebsocket):
 
-    def __init__(self, loop, coro, env: BinanceEnvironment):
-        self._rcp_client = Optional[WebSocketsClient]
-
-        super().__init__(loop, coro, env=env)
-
     def _get_ws_endpoint_url(self):
         return f"{self._env.wss_url}/websocket"
 
-    def _on_connect(self, socket):
-        super()._on_connect(socket)
-        self._rcp_client = WebSocketsClient(socket)
-
     async def send_keepalive(self):
-        await self._send_rpc_request('keepAlive')
-
-    def _send_rpc_request(self, method, params=None):
-        req = Request(method, params)
-        self._rcp_client.request(str(req))
+        await self.send_rpc_message('keepAlive')
 
     async def send_rpc_message(self, method, params=None, retry_count=0):
         if not self._socket:
@@ -38,10 +25,11 @@ class ReconnectingRpcWebsocket(ReconnectingWebsocket):
                 await asyncio.sleep(1)
                 await self.send_rpc_message(method, params, retry_count + 1)
         else:
-            await self._rcp_client.request(method, params)
+            req = RpcRequest(method, params)
+            await self._socket.send(str(req))
 
     async def ping(self):
-        await self._send_rpc_request('ping')
+        await self.send_rpc_message('ping')
 
     async def cancel(self):
         try:

@@ -25,7 +25,6 @@ def install_requires():
 
     requires = [
         'pywallet>=0.1.0', 'requests>=2.21.0', 'websockets>=7.0', 'aiohttp>=3.5.4',
-        'jsonrpcclient[requests,websockets]>=3.3.1',
         'secp256k1>=0.13.2', 'protobuf>=3.6.1', 'mnemonic>=0.18'
     ]
     return requires
