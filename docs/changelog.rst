@@ -1,6 +1,32 @@
 Changelog
 =========
 
+v0.1.8 - 2010-04-21
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- `get_block_exchange_fee` function to Http API Clients
+- memo param to Transfer message
+- more tests
+
+**Updated**
+
+- Remove jsonrpcclient dependency
+
+**Fixed**
+
+- Use of enums in request params
+- Some deprecation warnings
+
+v0.1.7 - 2010-04-18
+^^^^^^^^^^^^^^^^^^^
+
+**Updated**
+
+- fix package
+
+
 v0.1.6 - 2010-04-17
 ^^^^^^^^^^^^^^^^^^^
 
