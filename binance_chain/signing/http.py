@@ -420,8 +420,7 @@ class AsyncHttpApiSigningClient(BaseApiSigningClient):
 
     def __init__(self, endpoint: str, username: str, password: str,
                  loop: Optional[asyncio.AbstractEventLoop] = None,
-                 requests_params: Optional[Dict] = None
-    ):
+                 requests_params: Optional[Dict] = None):
 
         super().__init__(endpoint, username, password, requests_params=requests_params)
 

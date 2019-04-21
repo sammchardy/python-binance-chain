@@ -7,7 +7,7 @@ class RpcRequest:
 
     id_generator = itertools.count(1)
 
-    def __init__(self, method, params = None):
+    def __init__(self, method, params=None):
 
         self._method = method
         self._params = params

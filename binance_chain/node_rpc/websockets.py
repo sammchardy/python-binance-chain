@@ -1,8 +1,6 @@
 import asyncio
 from typing import Callable, Awaitable, Optional, Dict
 
-import websockets as ws
-
 from binance_chain.node_rpc.http import HttpRpcClient
 from binance_chain.websockets import ReconnectingWebsocket, BinanceChainSocketManagerBase
 from binance_chain.environment import BinanceEnvironment
