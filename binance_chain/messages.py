@@ -21,8 +21,9 @@ class Msg:
     AMINO_MESSAGE_TYPE = ""
     INCLUDE_AMINO_LENGTH_PREFIX = False
 
-    def __init__(self, wallet: Wallet):
+    def __init__(self, wallet: Wallet, memo: str = ''):
         self._wallet = wallet
+        self._memo = memo
 
     def to_dict(self) -> Dict:
         return {}
@@ -57,6 +58,10 @@ class Msg:
     def wallet(self):
         return self._wallet
 
+    @property
+    def memo(self):
+        return self._memo
+
     def to_hex_data(self):
         """Wrap in a Standard Transaction Message and convert to hex string
 
@@ -69,11 +74,10 @@ class Msg:
 
 class Signature:
 
-    def __init__(self, msg: Msg, data=None, memo=''):
+    def __init__(self, msg: Msg, data=None):
         self._msg = msg
         self._chain_id = msg.wallet.chain_id
         self._data = data
-        self._memo = memo
         self._source = BROADCAST_SOURCE
 
     def to_json(self):
@@ -81,7 +85,7 @@ class Signature:
             ('account_number', str(self._msg.wallet.account_number)),
             ('chain_id', self._chain_id),
             ('data', self._data),
-            ('memo', self._memo),
+            ('memo', self._msg.memo),
             ('msgs', [self._msg.to_dict()]),
             ('sequence', str(self._msg.wallet.sequence)),
             ('source', str(self._source))
@@ -100,20 +104,6 @@ class Signature:
 
 class NewOrderMsg(Msg):
 
-    ORDER_SIDE_INT = {
-        OrderSide.BUY: 1,
-        OrderSide.SELL: 2
-    }
-
-    ORDER_TYPE_INT = {
-        OrderType.LIMIT: 2
-    }
-
-    TIME_IN_FORCE_INT = {
-        TimeInForce.GOOD_TILL_EXPIRE: 1,
-        TimeInForce.IMMEDIATE_OR_CANCEL: 3
-    }
-
     AMINO_MESSAGE_TYPE = b"CE6DC043"
 
     def __init__(self, symbol: str, time_in_force: TimeInForce, order_type: OrderType, side: OrderSide,
@@ -131,12 +121,9 @@ class NewOrderMsg(Msg):
         """
         super().__init__(wallet)
         self._symbol = symbol
-        self._time_in_force = time_in_force
-        self._time_in_force_amino = NewOrderMsg.TIME_IN_FORCE_INT[time_in_force]
-        self._order_type = order_type
-        self._order_type_amino = NewOrderMsg.ORDER_TYPE_INT[order_type]
-        self._side = side
-        self._side_amino = NewOrderMsg.ORDER_SIDE_INT[side]
+        self._time_in_force = time_in_force.value
+        self._order_type = order_type.value
+        self._side = side.value
         self._price = price
         self._price_encoded = encode_number(price)
         self._quantity = quantity
@@ -145,13 +132,13 @@ class NewOrderMsg(Msg):
     def to_dict(self) -> Dict:
         return OrderedDict([
             ('id', self._wallet.generate_order_id()),
-            ('ordertype', self._order_type_amino),
+            ('ordertype', self._order_type),
             ('price', self._price_encoded),
             ('quantity', self._quantity_encoded),
             ('sender', self._wallet.address),
-            ('side', self._side_amino),
+            ('side', self._side),
             ('symbol', self._symbol),
-            ('timeinforce', self._time_in_force_amino),
+            ('timeinforce', self._time_in_force),
         ])
 
     def to_sign_dict(self) -> Dict:
@@ -169,9 +156,9 @@ class NewOrderMsg(Msg):
         pb.sender = self._wallet.address_decoded
         pb.id = self._wallet.generate_order_id()
         pb.symbol = self._symbol.encode()
-        pb.timeinforce = self._time_in_force_amino
-        pb.ordertype = self._order_type_amino
-        pb.side = self._side_amino
+        pb.timeinforce = self._time_in_force
+        pb.ordertype = self._order_type
+        pb.side = self._side
         pb.price = self._price_encoded
         pb.quantity = self._quantity_encoded
         return pb
@@ -384,13 +371,12 @@ class StdTxMsg(Msg):
     AMINO_MESSAGE_TYPE = b"F0625DEE"
     INCLUDE_AMINO_LENGTH_PREFIX = True
 
-    def __init__(self, msg: Msg, data='', memo=''):
+    def __init__(self, msg: Msg, data=''):
         super().__init__(msg.wallet)
 
         self._msg = msg
         self._signature = SignatureMsg(msg)
         self._data = data
-        self._memo = memo
         self._source = BROADCAST_SOURCE
 
     def to_protobuf(self) -> StdTx:
@@ -398,7 +384,7 @@ class StdTxMsg(Msg):
         stdtx.msgs.extend([self._msg.to_amino()])
         stdtx.signatures.extend([self._signature.to_amino()])
         stdtx.data = self._data.encode()
-        stdtx.memo = self._memo
+        stdtx.memo = self._msg.memo
         stdtx.source = self._source
         return stdtx
 
@@ -430,14 +416,14 @@ class TransferMsg(Msg):
     AMINO_MESSAGE_TYPE = b"2A2C87FA"
 
     def __init__(self, symbol: str, amount: Union[int, float, Decimal],
-                 to_address: str, wallet: Optional[Wallet] = None):
+                 to_address: str, wallet: Optional[Wallet] = None, memo: str = ''):
         """Transferring funds between different addresses.
 
         :param symbol: token symbol, in full name with "-" suffix
         :param amount: amount of token to freeze
         :param to_address: amount of token to freeze
         """
-        super().__init__(wallet)
+        super().__init__(wallet, memo)
         self._symbol = symbol
         self._amount = amount
         self._amount_amino = encode_number(amount)

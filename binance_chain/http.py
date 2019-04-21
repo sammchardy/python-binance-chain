@@ -101,6 +101,7 @@ class HttpApiClient(BaseApiClient):
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
+
         if not str(response.status_code).startswith('2'):
             raise BinanceChainAPIException(response, response.status_code)
         try:
@@ -368,8 +369,6 @@ class HttpApiClient(BaseApiClient):
         msg.wallet.initialise_wallet()
         data = msg.to_hex_data()
 
-        logging.debug(f'data:{data}')
-
         req_path = 'broadcast'
         if sync:
             req_path += f'?sync=1'
@@ -446,7 +445,7 @@ class HttpApiClient(BaseApiClient):
         """
         data = {
             'symbol': symbol,
-            'interval': interval
+            'interval': interval.value
         }
         if limit is not None:
             data['limit'] = limit
@@ -489,9 +488,9 @@ class HttpApiClient(BaseApiClient):
         if symbol is not None:
             data['symbol'] = symbol
         if status is not None:
-            data['status'] = status
+            data['status'] = status.value
         if side is not None:
-            data['side'] = side
+            data['side'] = side.value
         if offset is not None:
             data['offset'] = offset
         if limit is not None:
@@ -614,7 +613,7 @@ class HttpApiClient(BaseApiClient):
         if symbol is not None:
             data['symbol'] = symbol
         if side is not None:
-            data['side'] = side
+            data['side'] = side.value
         if quote_asset is not None:
             data['quoteAsset'] = quote_asset
         if buyer_order_id is not None:
@@ -670,13 +669,49 @@ class HttpApiClient(BaseApiClient):
         if symbol is not None:
             data['symbol'] = symbol
         if side is not None:
-            data['side'] = side
+            data['side'] = side.value
         if tx_asset is not None:
             data['txAsset'] = tx_asset
         if tx_type is not None:
-            data['txType'] = tx_type
+            data['txType'] = tx_type.value
         if height is not None:
             data['blockHeight'] = height
+        if offset is not None:
+            data['offset'] = offset
+        if limit is not None:
+            data['limit'] = limit
+        if start_time is not None:
+            data['startTime'] = start_time
+        if end_time is not None:
+            data['endTime'] = end_time
+
+        return self._get("transactions", data=data)
+
+    def get_block_exchange_fee(
+        self, address: Optional[str] = None, offset: Optional[int] = 0, total: Optional[int] = 0,
+        limit: Optional[int] = 500, start_time: Optional[int] = None, end_time: Optional[int] = None
+    ):
+        """Trading fee of the address grouped by block
+
+        https://docs.binance.org/api-reference/dex-api/paths.html#apiv1block-exchange-fee
+
+        :param address:
+        :param offset:
+        :param limit:
+        :param start_time:
+        :param end_time:
+        :param total:
+
+        .. code:: python
+
+            transactions = client.get_transactions('')
+
+        :return: API Response
+
+        """
+        data = {}
+        if address is not None:
+            data['address'] = address
         if offset is not None:
             data['offset'] = offset
         if limit is not None:
@@ -685,8 +720,10 @@ class HttpApiClient(BaseApiClient):
             data['start'] = start_time
         if end_time is not None:
             data['end'] = end_time
+        if total is not None:
+            data['total'] = total
 
-        return self._get("transactions", data=data)
+        return self._get("block-exchange-fee", data=data)
 
 
 class AsyncHttpApiClient(BaseApiClient):
@@ -849,7 +886,7 @@ class AsyncHttpApiClient(BaseApiClient):
                          start_time: Optional[int] = None, end_time: Optional[int] = None):
         data = {
             'symbol': symbol,
-            'interval': interval
+            'interval': interval.value
         }
         if limit is not None:
             data['limit'] = limit
@@ -872,7 +909,7 @@ class AsyncHttpApiClient(BaseApiClient):
         if symbol is not None:
             data['symbol'] = symbol
         if status is not None:
-            data['status'] = status
+            data['status'] = status.value
         if side is not None:
             data['side'] = side
         if offset is not None:
@@ -933,7 +970,7 @@ class AsyncHttpApiClient(BaseApiClient):
         if symbol is not None:
             data['symbol'] = symbol
         if side is not None:
-            data['side'] = side
+            data['side'] = side.value
         if quote_asset is not None:
             data['quoteAsset'] = quote_asset
         if buyer_order_id is not None:
@@ -968,11 +1005,11 @@ class AsyncHttpApiClient(BaseApiClient):
         if symbol is not None:
             data['symbol'] = symbol
         if side is not None:
-            data['side'] = side
+            data['side'] = side.value
         if tx_asset is not None:
             data['txAsset'] = tx_asset
         if tx_type is not None:
-            data['txType'] = tx_type
+            data['txType'] = tx_type.value
         if height is not None:
             data['blockHeight'] = height
         if offset is not None:
@@ -986,3 +1023,24 @@ class AsyncHttpApiClient(BaseApiClient):
 
         return await self._get("transactions", data=data)
     get_transactions.__doc__ = HttpApiClient.get_transactions.__doc__
+
+    async def get_block_exchange_fee(
+        self, address: Optional[str] = None, offset: Optional[int] = 0, total: Optional[int] = 0,
+        limit: Optional[int] = 500, start_time: Optional[int] = None, end_time: Optional[int] = None
+    ):
+        data = {}
+        if address is not None:
+            data['address'] = address
+        if offset is not None:
+            data['offset'] = offset
+        if limit is not None:
+            data['limit'] = limit
+        if start_time is not None:
+            data['start'] = start_time
+        if end_time is not None:
+            data['end'] = end_time
+        if total is not None:
+            data['total'] = total
+
+        return await self._get("block-exchange-fee", data=data)
+    get_block_exchange_fee.__doc__ = HttpApiClient.get_block_exchange_fee.__doc__

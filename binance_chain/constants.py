@@ -30,14 +30,14 @@ class OrderStatus(str, Enum):
     FAILED_MATCHING = 'FailedMatching'
 
 
-class OrderSide(str, Enum):
-    BUY = 'buy'
-    SELL = 'sell'
+class OrderSide(int, Enum):
+    BUY = 1
+    SELL = 2
 
 
-class TimeInForce(str, Enum):
-    GOOD_TILL_EXPIRE = "GTE"
-    IMMEDIATE_OR_CANCEL = "IOC"
+class TimeInForce(int, Enum):
+    GOOD_TILL_EXPIRE = 1
+    IMMEDIATE_OR_CANCEL = 3
 
 
 class TransactionSide(str, Enum):
@@ -58,8 +58,8 @@ class TransactionType(str, Enum):
     VOTE = 'VOTE'
 
 
-class OrderType(str, Enum):
-    LIMIT = "LIMIT"
+class OrderType(int, Enum):
+    LIMIT = 2
 
 
 class PeerType(str, Enum):

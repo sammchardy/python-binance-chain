@@ -1,5 +1,4 @@
 pywallet>=0.1.0
-jsonrpcclient[requests,websockets,aiohttp]>=3.3.1
 requests>=2.21.0
 aiohttp>=3.5.4
 websockets>=7.0

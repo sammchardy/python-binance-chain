@@ -129,7 +129,7 @@ def decode_address(address):
     hrp, data = bech32_decode(address)
     bits = convertbits(data, 5, 8, False)
 
-    return array.array('B', bits).tostring()
+    return array.array('B', bits).tobytes()
 
 
 def address_from_public_key(public_key, hrp='tbnb'):

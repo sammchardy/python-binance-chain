@@ -1,50 +1,74 @@
 import asyncio
+import itertools
 from typing import Optional, Dict
 
+import requests
 import aiohttp
-from jsonrpcclient.clients.http_client import HTTPClient
-from jsonrpcclient.clients.aiohttp_client import AiohttpClient
-from jsonrpcclient.requests import Request
 
 from binance_chain.exceptions import BinanceChainRPCException, BinanceChainRequestException
 from binance_chain.constants import RpcBroadcastRequestType
 from binance_chain.messages import Msg
+from binance_chain.node_rpc.request import RpcRequest
 
 
 class BaseHttpRpcClient:
 
-    def __init__(self, endpoint_url):
+    id_generator = itertools.count(1)
+
+    def __init__(self, endpoint_url, requests_params: Optional[Dict] = None):
         self._endpoint_url = endpoint_url
+        self._requests_params = requests_params
 
-        self.client = self._init_client()
+        self.session = self._init_session()
 
-    def _init_client(self):
-        return HTTPClient(self._endpoint_url)
+    def _init_session(self):
 
-    def _get_rcp_request(self, path, **kwargs):
+        session = requests.session()
+        session.headers.update(self._get_headers())
+        return session
 
-        kwargs['data'] = kwargs.get('data', None)
+    def _get_rpc_request(self, path, **kwargs) -> str:
 
-        rcp_request = Request(path)
-        if kwargs['data']:
-            rcp_request.update(params=kwargs['data'])
+        rpc_request = RpcRequest(path, kwargs.get('data', None))
 
-        return rcp_request
+        return str(rpc_request)
 
     def _get_headers(self):
         return {
             'Accept': 'application/json',
+            'Content-Type': 'application/json',
             'User-Agent': 'python-binance-chain',
         }
+
+    def request_kwargs(self, method, **kwargs):
+
+        # set default requests timeout
+        kwargs['timeout'] = 10
+
+        # add our global requests params
+        if self._requests_params:
+            kwargs.update(self._requests_params)
+
+        kwargs['data'] = kwargs.get('data', {})
+        kwargs['headers'] = kwargs.get('headers', {})
+
+        if kwargs['data'] and method == 'get':
+            kwargs['params'] = kwargs['data']
+            del(kwargs['data'])
+
+        if method == 'post':
+            kwargs['headers']['content-type'] = 'text/plain'
+
+        return kwargs
 
 
 class HttpRpcClient(BaseHttpRpcClient):
 
     def _request(self, path, **kwargs):
 
-        rcp_request = self._get_rcp_request(path, **kwargs)
+        rpc_request = self._get_rpc_request(path, **kwargs)
 
-        response = self.client.send(rcp_request, headers=self._get_headers())
+        response = self.session.post(self._endpoint_url, data=rpc_request.encode(), headers=self._get_headers())
 
         return self._handle_response(response)
 
@@ -55,7 +79,7 @@ class HttpRpcClient(BaseHttpRpcClient):
             'headers': self._get_headers()
         }
 
-        response = self.client.session.get(f"{self._endpoint_url}/{path}", **kwargs)
+        response = self.session.get(f"{self._endpoint_url}/{path}", **kwargs)
 
         return self._handle_session_response(response)
 
@@ -67,7 +91,7 @@ class HttpRpcClient(BaseHttpRpcClient):
         """
 
         try:
-            res = response.raw.json()
+            res = response.json()
 
             if 'error' in res and res['error']:
                 raise BinanceChainRPCException(response)
@@ -112,7 +136,7 @@ class HttpRpcClient(BaseHttpRpcClient):
         https://binance-chain.github.io/api-reference/node-rpc.html#get-the-list
 
         """
-        res = self.client.session.get(self._endpoint_url)
+        res = self._request(self._endpoint_url, method="get")
         return res.content
 
     def get_abci_info(self):
@@ -413,20 +437,20 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
 
         return AsyncHttpRpcClient(endpoint_url)
 
-    def _init_client(self):
+    def _init_session(self, **kwargs):
 
-        loop = asyncio.get_event_loop()
-        aiohttp_session = aiohttp.ClientSession(
+        loop = kwargs.get('loop', asyncio.get_event_loop())
+        session = aiohttp.ClientSession(
             loop=loop,
             headers=self._get_headers()
         )
-        return AiohttpClient(aiohttp_session, self._endpoint_url, timeout=10)
+        return session
 
     async def _request(self, path, **kwargs):
 
-        rcp_request = self._get_rcp_request(path, **kwargs)
-        response = await self.client.send(rcp_request, headers=self._get_headers())
+        rpc_request = self._get_rpc_request(path, **kwargs)
 
+        response = await self.session.post(self._endpoint_url, data=rpc_request.encode(), headers=self._get_headers())
         return await self._handle_response(response)
 
     async def _request_session(self, path, params=None):
@@ -436,7 +460,7 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
             'headers': self._get_headers()
         }
 
-        response = await self.client.session.get(f"{self._endpoint_url}/{path}", **kwargs)
+        response = await self.session.get(f"{self._endpoint_url}/{path}", **kwargs)
 
         return await self._handle_session_response(response)
 
@@ -447,7 +471,7 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
         """
 
         try:
-            res = await response.raw.json()
+            res = await response.json()
 
             if 'error' in res and res['error']:
                 raise BinanceChainRPCException(response)

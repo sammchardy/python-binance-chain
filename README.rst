@@ -391,6 +391,16 @@ General case
     )
     res = client.broadcast_msg(transfer_msg, sync=True)
 
+    # optionally include a memo with the transfer message
+    transfer_msg = TransferMsg(
+        wallet=wallet,
+        symbol='BNB',
+        amount=1,
+        to_address='<to address>',
+        memo="Thanks for the beer"
+    )
+    res = client.broadcast_msg(transfer_msg, sync=True)
+
 
 Websockets
 ----------

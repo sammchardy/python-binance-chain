@@ -173,12 +173,10 @@ class TestMessages:
             amount=amount
         )
 
-        expected = (b'c601f0625dee0a4c2a2c87fa0a220a143a6edf88809474f9936145332ffb1445523f8af9120a0a03424e421080c2'
-                    b'd72f12220a147f756b1be93aa2e2fdc3d7cb713abc206f877802120a0a03424e421080c2d72f12700a26eb5ae987'
-                    b'2102cce2ee4e37dc8c65d6445c966faf31ebfe578a90695138947ee7cab8ae9a2c0812403189d8cda9a93298cc27'
-                    b'24c27d2dd4536f6ba8f3b0aa9338c43ae9f1616c36b312984ee1b3cda93b25f8b7680702c5505f1697cec7249fed'
-                    b'b7bf092b221457e3189cb70120022001')
-
-        print(msg.to_hex_data())
+        expected = (b'c601f0625dee0a4c2a2c87fa0a220a147f756b1be93aa2e2fdc3d7cb713abc206f877802120a0a03424e421080c2d'
+                    b'72f12220a147f756b1be93aa2e2fdc3d7cb713abc206f877802120a0a03424e421080c2d72f12700a26eb5ae98721'
+                    b'02cce2ee4e37dc8c65d6445c966faf31ebfe578a90695138947ee7cab8ae9a2c0812401844b39edee1b0bb6981385'
+                    b'c52ce0177a8978f625df60fced84268aeea3f356160b61908adb0bc66c0eb036f47bf7a6e06e7bc48b259f7cf9e5c'
+                    b'4a23a0655b92189cb70120022001')
 
         assert msg.to_hex_data() == expected
