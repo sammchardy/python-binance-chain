@@ -104,20 +104,6 @@ class Signature:
 
 class NewOrderMsg(Msg):
 
-    ORDER_SIDE_INT = {
-        OrderSide.BUY: 1,
-        OrderSide.SELL: 2
-    }
-
-    ORDER_TYPE_INT = {
-        OrderType.LIMIT: 2
-    }
-
-    TIME_IN_FORCE_INT = {
-        TimeInForce.GOOD_TILL_EXPIRE: 1,
-        TimeInForce.IMMEDIATE_OR_CANCEL: 3
-    }
-
     AMINO_MESSAGE_TYPE = b"CE6DC043"
 
     def __init__(self, symbol: str, time_in_force: TimeInForce, order_type: OrderType, side: OrderSide,
@@ -135,12 +121,9 @@ class NewOrderMsg(Msg):
         """
         super().__init__(wallet)
         self._symbol = symbol
-        self._time_in_force = time_in_force
-        self._time_in_force_amino = NewOrderMsg.TIME_IN_FORCE_INT[time_in_force]
-        self._order_type = order_type
-        self._order_type_amino = NewOrderMsg.ORDER_TYPE_INT[order_type]
-        self._side = side
-        self._side_amino = NewOrderMsg.ORDER_SIDE_INT[side]
+        self._time_in_force = time_in_force.value
+        self._order_type = order_type.value
+        self._side = side.value
         self._price = price
         self._price_encoded = encode_number(price)
         self._quantity = quantity
@@ -149,13 +132,13 @@ class NewOrderMsg(Msg):
     def to_dict(self) -> Dict:
         return OrderedDict([
             ('id', self._wallet.generate_order_id()),
-            ('ordertype', self._order_type_amino),
+            ('ordertype', self._order_type),
             ('price', self._price_encoded),
             ('quantity', self._quantity_encoded),
             ('sender', self._wallet.address),
-            ('side', self._side_amino),
+            ('side', self._side),
             ('symbol', self._symbol),
-            ('timeinforce', self._time_in_force_amino),
+            ('timeinforce', self._time_in_force),
         ])
 
     def to_sign_dict(self) -> Dict:
@@ -173,9 +156,9 @@ class NewOrderMsg(Msg):
         pb.sender = self._wallet.address_decoded
         pb.id = self._wallet.generate_order_id()
         pb.symbol = self._symbol.encode()
-        pb.timeinforce = self._time_in_force_amino
-        pb.ordertype = self._order_type_amino
-        pb.side = self._side_amino
+        pb.timeinforce = self._time_in_force
+        pb.ordertype = self._order_type
+        pb.side = self._side
         pb.price = self._price_encoded
         pb.quantity = self._quantity_encoded
         return pb
