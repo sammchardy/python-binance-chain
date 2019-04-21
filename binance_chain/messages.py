@@ -416,7 +416,7 @@ class TransferMsg(Msg):
     AMINO_MESSAGE_TYPE = b"2A2C87FA"
 
     def __init__(self, symbol: str, amount: Union[int, float, Decimal],
-                 to_address: str, wallet: Optional[Wallet] = None, memo: str = None):
+                 to_address: str, wallet: Optional[Wallet] = None, memo: str = ''):
         """Transferring funds between different addresses.
 
         :param symbol: token symbol, in full name with "-" suffix
