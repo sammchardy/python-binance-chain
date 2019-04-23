@@ -8,6 +8,12 @@ Welcome to python-binance-chain v0.1.8
 .. image:: https://img.shields.io/pypi/l/python-binance-chain.svg
     :target: https://pypi.python.org/pypi/python-binance-chain
 
+.. image:: https://img.shields.io/travis/sammchardy/python-binance-chain.svg
+    :target: https://travis-ci.org/sammchardy/python-binance-chain
+
+.. image:: https://img.shields.io/coveralls/sammchardy/python-binance-chain.svg
+    :target: https://coveralls.io/github/sammchardy/python-binance-chain
+
 .. image:: https://img.shields.io/pypi/wheel/python-binance-chain.svg
     :target: https://pypi.python.org/pypi/python-binance-chain
 
