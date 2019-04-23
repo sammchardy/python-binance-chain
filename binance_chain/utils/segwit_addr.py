@@ -67,7 +67,7 @@ def bech32_encode(hrp, data):
 
 def bech32_decode(bech):
     """Validate a Bech32 string, and determine HRP and data."""
-    if ((any(ord(x) < 33 or ord(x) > 126 for x in bech)) or (bech.lower() != bech and bech.upper() != bech)):
+    if (any(ord(x) < 33 or ord(x) > 126 for x in bech)) or (bech.lower() != bech and bech.upper() != bech):
         return None, None
     bech = bech.lower()
     pos = bech.rfind('1')
@@ -105,21 +105,6 @@ def convertbits(data, frombits, tobits, pad=True):
     return ret
 
 
-def decode(hrp, addr):
-    """Decode a segwit address."""
-    hrpgot, data = bech32_decode(addr)
-    if hrpgot != hrp:
-        return None, None
-    decoded = convertbits(data[1:], 5, 8, False)
-    if decoded is None or len(decoded) < 2 or len(decoded) > 40:
-        return None, None
-    if data[0] > 16:
-        return None, None
-    if data[0] == 0 and len(decoded) != 20 and len(decoded) != 32:
-        return None, None
-    return data[0], decoded
-
-
 def encode(hrp, witprog):
     """Encode a segwit address."""
     return bech32_encode(hrp, convertbits(witprog, 8, 5))
@@ -127,8 +112,10 @@ def encode(hrp, witprog):
 
 def decode_address(address):
     hrp, data = bech32_decode(address)
-    bits = convertbits(data, 5, 8, False)
+    if hrp is None:
+        return None
 
+    bits = convertbits(data, 5, 8, False)
     return array.array('B', bits).tobytes()
 
 

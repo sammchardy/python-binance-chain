@@ -740,7 +740,7 @@ class BinanceChainSocketManager(BinanceChainSocketManagerBase):
         }
         await self._conn.send_message(req_msg)
 
-    async def close_connect(self):
+    async def close_connection(self):
         req_msg = {
             "method": "close"
         }

@@ -257,11 +257,7 @@ class HttpApiClient(BaseApiClient):
 
         """
 
-        data = {
-            'format': 'json'
-        }
-
-        return self._get(f"tx/{transaction_hash}?format=json", data=data)
+        return self._get(f"tx/{transaction_hash}?format=json")
 
     def get_tokens(self):
         """Gets a list of tokens that have been issued
@@ -827,10 +823,7 @@ class AsyncHttpApiClient(BaseApiClient):
     get_account_sequence.__doc__ = HttpApiClient.get_account_sequence.__doc__
 
     async def get_transaction(self, transaction_hash: str):
-        data = {
-            'format': 'json'
-        }
-        return await self._get(f"tx/{transaction_hash}?format=json", data=data)
+        return await self._get(f"tx/{transaction_hash}?format=json")
     get_transaction.__doc__ = HttpApiClient.get_transaction.__doc__
 
     async def get_tokens(self):
@@ -1017,9 +1010,9 @@ class AsyncHttpApiClient(BaseApiClient):
         if limit is not None:
             data['limit'] = limit
         if start_time is not None:
-            data['start'] = start_time
+            data['startTime'] = start_time
         if end_time is not None:
-            data['end'] = end_time
+            data['endTime'] = end_time
 
         return await self._get("transactions", data=data)
     get_transactions.__doc__ = HttpApiClient.get_transactions.__doc__

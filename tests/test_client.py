@@ -5,7 +5,7 @@ import pytest
 import requests_mock
 from urllib.parse import urlencode
 
-from binance_chain.http import HttpApiClient
+from binance_chain.http import HttpApiClient, AsyncHttpApiClient
 from binance_chain.constants import PeerType, OrderSide, OrderType, TransactionSide, TransactionType, KlineInterval
 from binance_chain.environment import BinanceEnvironment
 
@@ -36,6 +36,9 @@ class TestClient:
 
     def test_get_peers(self, httpclient):
         assert httpclient.get_peers()
+
+    def test_get_transaction(self, httpclient):
+        assert httpclient.get_transaction('B17DB550FCE00268C07D11F312E86F72813481124831B798FDC491E363D17989')
 
     @pytest.mark.parametrize("peer_type", [
         PeerType.NODE,
@@ -74,7 +77,6 @@ class TestClient:
         assert httpclient.get_fees()
 
     def test_get_trades_url(self, httpclient):
-
         params = {
             'symbol': 'BNB',
             'side': OrderSide.BUY.value,
@@ -107,7 +109,6 @@ class TestClient:
             assert res == {"message": "success"}
 
     def test_get_transactions_url(self, httpclient):
-
         addr = 'tbnb2jadf8u2'
         params = {
             'address': addr,
@@ -157,3 +158,24 @@ class TestClient:
                 end_time=5000
             )
             assert res == {"message": "success"}
+
+
+class TestAsyncClient:
+
+    @pytest.fixture
+    def env(self):
+        return BinanceEnvironment.get_testnet_env()
+
+    @pytest.fixture
+    @pytest.mark.asyncio
+    async def httpclient(self, env, event_loop):
+        return await AsyncHttpApiClient.create(loop=event_loop, env=env, requests_params={'timeout': 1})
+
+    def load_fixture(self, file_name):
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(f'{this_dir}/fixtures/{file_name}', 'r') as f:
+            return json.load(f)
+
+    @pytest.mark.asyncio
+    async def test_get_time(self, httpclient):
+        assert await httpclient.get_time()
