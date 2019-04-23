@@ -1,5 +1,5 @@
 ======================================
-Welcome to python-binance-chain v0.1.8
+Welcome to python-binance-chain v0.1.9
 ======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg

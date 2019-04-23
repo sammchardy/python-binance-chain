@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.1.9 - 2010-04-23
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- More test coverage including for python 3.7
+
+**Fixed**
+
+- Params in async http client for `get_klines`
+- coveralls report
+- small fixes
+
 v0.1.8 - 2010-04-21
 ^^^^^^^^^^^^^^^^^^^
 
