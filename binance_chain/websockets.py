@@ -36,44 +36,42 @@ class ReconnectingWebsocket:
     def _get_ws_endpoint_url(self):
         return f"{self._env.wss_url}ws"
 
-    def _is_ssl_connection(self):
-        if self._get_ws_endpoint_url().startswith('wss'):
-            return True
-        return False
-
     async def _run(self):
 
         keep_waiting: bool = True
 
         logging.info(f"connecting to {self._get_ws_endpoint_url()}")
-        async with ws.connect(self._get_ws_endpoint_url(), ssl=self._is_ssl_connection()) as socket:
-            self._on_connect(socket)
+        try:
+            async with ws.connect(self._get_ws_endpoint_url(), loop=self._loop) as socket:
+                self._on_connect(socket)
 
-            try:
-                while keep_waiting:
-                    try:
-                        evt = await asyncio.wait_for(self._socket.recv(), timeout=self._ping_timeout)
-                    except asyncio.TimeoutError:
-                        self._log.debug("no message in {} seconds".format(self._ping_timeout))
-                        await self.send_keepalive()
-                    except asyncio.CancelledError:
-                        self._log.debug("cancelled error")
-                        await self.ping()
-                    else:
+                try:
+                    while keep_waiting:
                         try:
-                            evt_obj = json.loads(evt)
-                        except ValueError:
-                            pass
+                            evt = await asyncio.wait_for(self._socket.recv(), timeout=self._ping_timeout)
+                        except asyncio.TimeoutError:
+                            self._log.debug("no message in {} seconds".format(self._ping_timeout))
+                            await self.send_keepalive()
+                        except asyncio.CancelledError:
+                            self._log.debug("cancelled error")
+                            await self.ping()
                         else:
-                            await self._coro(evt_obj)
-            except ws.ConnectionClosed as e:
-                self._log.debug('conn closed:{}'.format(e))
-                keep_waiting = False
-                await self._reconnect()
-            except Exception as e:
-                self._log.debug('ws exception:{}'.format(e))
-                keep_waiting = False
-                await self._reconnect()
+                            try:
+                                evt_obj = json.loads(evt)
+                            except ValueError:
+                                pass
+                            else:
+                                await self._coro(evt_obj)
+                except ws.ConnectionClosed as e:
+                    self._log.debug('conn closed:{}'.format(e))
+                    keep_waiting = False
+                    await self._reconnect()
+                except Exception as e:
+                    self._log.debug('ws exception:{}'.format(e))
+                    keep_waiting = False
+                    await self._reconnect()
+        except Exception as e:
+            logging.info(f"websocket error: {e}")
 
     def _on_connect(self, socket):
         self._socket = socket
@@ -107,6 +105,8 @@ class ReconnectingWebsocket:
             if retry_count < 5:
                 await asyncio.sleep(1)
                 await self.send_message(msg, retry_count + 1)
+            else:
+                logging.info("Unable to send, not connected")
         else:
             await self._socket.send(json.dumps(msg, separators=(',', ':'), ensure_ascii=False))
 
