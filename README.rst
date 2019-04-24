@@ -393,19 +393,29 @@ General case
         wallet=wallet,
         symbol='BNB',
         amount=1,
-        to_address='<to address>'
+        to_address='<to address>',
+        memo='Thanks for the beer'
     )
     res = client.broadcast_msg(transfer_msg, sync=True)
 
-    # optionally include a memo with the transfer message
-    transfer_msg = TransferMsg(
+**Vote for proposal**
+
+.. code:: python
+
+    from binance_chain.http import HttpApiClient
+    from binance_chain.messages import VoteMsg
+    from binance_chain.wallet import Wallet
+    from binance_chain.constants import VoteOption
+
+    wallet = Wallet('private_key_string')
+    client = HttpApiClient()
+
+    vote_msg = VoteMsg(
         wallet=wallet,
-        symbol='BNB',
-        amount=1,
-        to_address='<to address>',
-        memo="Thanks for the beer"
+        proposal_id=1,
+        vote_option=VoteOption.YES
     )
-    res = client.broadcast_msg(transfer_msg, sync=True)
+    res = client.broadcast_msg(vote_msg, sync=True)
 
 
 Websockets

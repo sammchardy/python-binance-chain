@@ -377,6 +377,52 @@ class HttpApiSigningClient(BaseApiSigningClient):
         }
         return self._post('unfreeze/broadcast', json=data)
 
+    def sign_vote(self, msg: binance_chain.messages.VoteMsg, wallet_name: str):
+        """Sign a message using a signing service
+
+        :param msg: Type of VoteMsg
+        :param wallet_name: Name of the wallet
+
+        .. code:: python
+
+            vote_msg = VoteMsg(
+                proposal_id=1,
+                vote_option=VoteOption.YES
+            )
+            res = client.sign_vote(vote_msg, wallet_name='mywallet')
+
+        :return: API Response
+
+        """
+        data = {
+            'msg': msg.to_sign_dict(),
+            'wallet_name': wallet_name
+        }
+        return self._post('vote/sign', json=data)
+
+    def broadcast_vote(self, msg: binance_chain.messages.VoteMsg, wallet_name: str):
+        """Sign and broadcast a message using a signing service
+
+        :param msg: Type of VoteMsg
+        :param wallet_name: Name of the wallet
+
+        .. code:: python
+
+            vote_msg = VoteMsg(
+                proposal_id=1,
+                vote_option=VoteOption.YES
+            )
+            res = client.broadcast_vote(vote_msg, wallet_name='mywallet')
+
+        :return: API Response
+
+        """
+        data = {
+            'msg': msg.to_sign_dict(),
+            'wallet_name': wallet_name
+        }
+        return self._post('vote/broadcast', json=data)
+
     def wallet_resync(self, wallet_name: str):
         """Resynchronise the wallet to the chain
 
@@ -573,6 +619,22 @@ class AsyncHttpApiSigningClient(BaseApiSigningClient):
         }
         return await self._post('unfreeze/broadcast', json=data)
     broadcast_unfreeze.__doc__ = HttpApiSigningClient.broadcast_unfreeze.__doc__
+
+    async def sign_vote(self, msg: binance_chain.messages.VoteMsg, wallet_name: str):
+        data = {
+            'msg': msg.to_sign_dict(),
+            'wallet_name': wallet_name
+        }
+        return await self._post('vote/sign', json=data)
+    sign_vote.__doc__ = HttpApiSigningClient.sign_vote.__doc__
+
+    async def broadcast_vote(self, msg: binance_chain.messages.VoteMsg, wallet_name: str):
+        data = {
+            'msg': msg.to_sign_dict(),
+            'wallet_name': wallet_name
+        }
+        return await self._post('vote/broadcast', json=data)
+    broadcast_vote.__doc__ = HttpApiSigningClient.broadcast_vote.__doc__
 
     async def wallet_resync(self, wallet_name: str):
         data = {

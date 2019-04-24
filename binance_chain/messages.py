@@ -5,15 +5,15 @@ from decimal import Decimal
 from collections import OrderedDict
 
 from binance_chain.wallet import Wallet
-from binance_chain.constants import TimeInForce, OrderSide, OrderType
+from binance_chain.constants import TimeInForce, OrderSide, OrderType, VoteOption
 from binance_chain.protobuf.dex_pb2 import (
-    NewOrder, CancelOrder, TokenFreeze, TokenUnfreeze, StdTx, StdSignature, Send, Input, Output, Token
+    NewOrder, CancelOrder, TokenFreeze, TokenUnfreeze, StdTx, StdSignature, Send, Input, Output, Token, Vote
 )
 from binance_chain.utils.encode_utils import encode_number, varint_encode
 from binance_chain.utils.segwit_addr import decode_address
 
 # An identifier for tools triggering broadcast transactions, set to zero if unwilling to disclose.
-BROADCAST_SOURCE = 1
+BROADCAST_SOURCE = 0
 
 
 class Msg:
@@ -478,3 +478,54 @@ class TransferMsg(Msg):
         msg.inputs.extend([input_addr])
         msg.outputs.extend([output_addr])
         return msg
+
+
+class VoteMsg(Msg):
+
+    AMINO_MESSAGE_TYPE = b"A1CADD36"
+
+    VOTE_OPTION_STR = {
+        VoteOption.YES: 'Yes',
+        VoteOption.ABSTAIN: 'Abstain',
+        VoteOption.NO: 'No',
+        VoteOption.NO_WITH_VETO: 'NoWithVeto',
+    }
+
+    VOTE_OPTION_INT = {
+        VoteOption.YES: 1,
+        VoteOption.ABSTAIN: 2,
+        VoteOption.NO: 3,
+        VoteOption.NO_WITH_VETO: 4
+    }
+
+    def __init__(self, proposal_id: int, vote_option: VoteOption, wallet: Optional[Wallet] = None):
+        """Place a vote for a proposal from the given wallet address.
+
+        :param proposal_id: ID of the proposal
+        :param vote_option: option chosen by the voter
+        """
+        super().__init__(wallet)
+        self._proposal_id = proposal_id
+        self._proposal_id_amino = encode_number(proposal_id)
+        self._voter = wallet.address if wallet else None
+        self._vote_option = vote_option
+
+    def to_dict(self):
+        return OrderedDict([
+            ('option', self.VOTE_OPTION_STR[self._vote_option]),
+            ('proposal_id', self._proposal_id_amino),
+            ('voter', self._voter),
+        ])
+
+    def to_sign_dict(self) -> Dict:
+        return {
+            'proposal_id': self._proposal_id,
+            'option': self._vote_option,
+        }
+
+    def to_protobuf(self) -> Vote:
+        pb = Vote()
+        pb.voter = self.wallet.address_decoded
+        pb.proposal_id = self._proposal_id
+        pb.option = self.VOTE_OPTION_INT[self._vote_option]
+        return pb
