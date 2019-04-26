@@ -40,7 +40,10 @@ setup(
     license='MIT',
     author_email='',
     install_requires=install_requires(),
-    keywords='binance dex exchange rest api bitcoin ethereum btc eth bnb',
+    extras_require={
+        'ledger': ['btchip-python>=0.1.28', ],
+    },
+    keywords='binance dex exchange rest api bitcoin ethereum btc eth bnb ledger',
     classifiers=[
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',

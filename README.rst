@@ -41,8 +41,10 @@ Features
 - `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
 - Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <#node-rpc-http>`_ with helper classes for limit buy and sell
+- `Ledger hardware wallet <#ledger>`_ device (Ledger Blue, Nano S & Nano X) support for signing messages
 - Async `Depth Cache <#depth-cache>`_
 - `Signing Service Support <#signing-service>`_ for `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_
+- Strong Python3 typing to reduce errors
 - Response exception handling
 
 Read the `Changelog <https://python-binance-chain.readthedocs.io/en/latest/changelog.html>`_
@@ -829,6 +831,60 @@ Like all other libraries there is an async version.
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
+
+Ledger
+------
+
+Sign transactions with your Ledger wallet, supports Ledger Blue, Nano S and Nano X.
+
+Make sure you have registered on Binance Chain with your Ledger address.
+
+Make sure that you have connected your Ledger and are in the Binance Chain app.
+
+Install python-binance-chain with this optional library like so `pip install python-binance-chain[ledger]`
+
+Uses the `btchip-python library <https://github.com/LedgerHQ/btchip-python>`_ if having issues installing check their github page
+
+.. code:: python
+
+    from binance_chain.ledger import getDongle, LedgerApp, LedgerWallet
+    from binance_chain.environment import BinanceEnvironment
+
+    dongle = getDongle(debug=True)
+
+    testnet_env = BinanceEnvironment.get_testnet_env()
+    app = LedgerApp(dongle, env=testnet_env)
+
+    # get the Ledger Binance app version
+    print(app.get_version())
+
+    # Show your address on the Ledger
+    print(app.get_version())
+
+    # Show your address on the Ledger
+    print(app.get_public_key())
+
+    wallet = LedgerWallet(app, env=testnet_env)
+
+
+    # now create messages and sign them with this wallet
+    from binance_chain.http import HttpApiClient
+    from binance_chain.messages import NewOrderMsg, OrderType, OrderSide, TimeInForce
+
+    client = HttpApiClient(env=testnet_env)
+    new_order_msg = NewOrderMsg(
+        wallet=wallet,
+        symbol='ANN-457_BNB',
+        order_type=OrderType.LIMIT,
+        side=OrderSide.BUY,
+        price=0.000396000,
+        quantity=10,
+        time_in_force=TimeInForce.GOOD_TILL_EXPIRE
+    )
+    new_order_res = client.broadcast_msg(new_order_msg, sync=True)
+
+    print(new_order_res)
+
 
 
 Donate
