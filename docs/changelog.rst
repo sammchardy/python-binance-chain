@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.1.10 - 2010-04-24
+^^^^^^^^^^^^^^^^^^^^
+
+**Fixed**
+
+- Connecting to secure and insecure websocket connections
+
 v0.1.9 - 2010-04-23
 ^^^^^^^^^^^^^^^^^^^
 

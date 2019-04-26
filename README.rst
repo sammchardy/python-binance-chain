@@ -1,6 +1,6 @@
-======================================
-Welcome to python-binance-chain v0.1.9
-======================================
+=======================================
+Welcome to python-binance-chain v0.1.10
+=======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg
     :target: https://pypi.python.org/pypi/python-binance-chain
@@ -606,6 +606,8 @@ Node RPC Websockets
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.node_rpc.websockets>`_ docs for more information.
 
+For subscribe query examples see the `documentation here <https://docs.binance.org/api-reference/node-rpc.html#631-subscribe>`_
+
 .. code:: python
 
     import asyncio
@@ -640,7 +642,7 @@ See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.ht
 
         wrc = await WebsocketRpcClient.create(loop, handle_evt, env=node_env)
 
-        await wrc.subscribe('NewBlock')
+        await wrc.subscribe("tm.event = 'NewBlock'")
         await wrc.abci_info()
 
         while True:
@@ -659,7 +661,7 @@ See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.ht
 
     # with an existing WebsocketRpcClient instance
 
-    await wrc.unsubscribe('NewBlock')
+    await wrc.unsubscribe("tm.event = 'NewBlock'")
 
 **Unsubscribe All**
 
