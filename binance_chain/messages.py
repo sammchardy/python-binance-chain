@@ -94,8 +94,10 @@ class Signature:
     def to_bytes_json(self):
         return self.to_json().encode()
 
-    def sign(self, wallet):
-        # sign string
+    def sign(self, wallet: Optional[BaseWallet] = None):
+        wallet = wallet or self._msg.wallet
+
+        # generate string to sign
         json_bytes = self.to_bytes_json()
 
         signed = wallet.sign_message(json_bytes)
