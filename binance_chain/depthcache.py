@@ -167,7 +167,6 @@ class DepthCacheManager(object):
         self._depth_message_buffer = []
 
         res = self._client.get_order_book(self._symbol)
-        print(f"got res:{res}")
 
         # process bid and asks from the order book
         for bid in res['bids']:
@@ -200,10 +199,6 @@ class DepthCacheManager(object):
         """
         self._bm = await BinanceChainSocketManager.create(self._loop, self._depth_event, self._env)
         await self._bm.subscribe_market_diff(symbols=[self._symbol])
-
-        # wait for some socket responses
-        while not len(self._depth_message_buffer):
-            await asyncio.sleep(1)
 
     async def _depth_event(self, msg):
         """Handle a depth event
