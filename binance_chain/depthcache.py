@@ -1,5 +1,4 @@
 import time
-import asyncio
 from operator import itemgetter
 from typing import Optional
 
