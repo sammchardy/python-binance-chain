@@ -1,14 +1,40 @@
 Changelog
 =========
 
-v0.1.10 - 2010-04-24
+v0.1.14 - 2019-04-28
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Simple transaction signing example
+
+**Fixed**
+
+- Depth Cache doesn't wait for websocket messages before outputting
+
+v0.1.13 - 2019-04-28
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- `get_address` function for Ledger hardware wallet
+- better error handling and parsing of Ledger hardware wallet responses
+
+v0.1.12 - 2019-04-27
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Ledger Hardware wallet support for signing transactions
+
+v0.1.10 - 2019-04-24
 ^^^^^^^^^^^^^^^^^^^^
 
 **Fixed**
 
 - Connecting to secure and insecure websocket connections
 
-v0.1.9 - 2010-04-23
+v0.1.9 - 2019-04-23
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -21,7 +47,7 @@ v0.1.9 - 2010-04-23
 - coveralls report
 - small fixes
 
-v0.1.8 - 2010-04-21
+v0.1.8 - 2019-04-21
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -39,7 +65,7 @@ v0.1.8 - 2010-04-21
 - Use of enums in request params
 - Some deprecation warnings
 
-v0.1.7 - 2010-04-18
+v0.1.7 - 2019-04-18
 ^^^^^^^^^^^^^^^^^^^
 
 **Updated**
@@ -47,35 +73,35 @@ v0.1.7 - 2010-04-18
 - fix package
 
 
-v0.1.6 - 2010-04-17
+v0.1.6 - 2019-04-17
 ^^^^^^^^^^^^^^^^^^^
 
 **Updated**
 
 - fix package requirement versions
 
-v0.1.5 - 2010-04-17
+v0.1.5 - 2019-04-17
 ^^^^^^^^^^^^^^^^^^^
 
 **Fixed**
 
 - signing module imported
 
-v0.1.4 - 2010-04-16
+v0.1.4 - 2019-04-16
 ^^^^^^^^^^^^^^^^^^^
 
 **Fixed**
 
 - Issue with protobuf file
 
-v0.1.3 - 2010-04-16
+v0.1.3 - 2019-04-16
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
 
 - Wallet methods for Binance Signing Service v0.0.2
 
-v0.1.2 - 2010-04-14
+v0.1.2 - 2019-04-14
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -86,14 +112,14 @@ v0.1.2 - 2010-04-14
 
 - Cleaned up TransferMsg as from_address is found from wallet instance
 
-v0.1.1 - 2010-04-13
+v0.1.1 - 2019-04-13
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
 
 - Broadcast message taking signed hex data
 
-v0.1.0 - 2010-04-11
+v0.1.0 - 2019-04-11
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -105,7 +131,7 @@ v0.1.0 - 2010-04-11
 - Transfer message implementation
 - Message broadcast over Node RPC
 
-v0.0.5 - 2010-04-08
+v0.0.5 - 2019-04-08
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -119,7 +145,7 @@ v0.0.5 - 2010-04-08
 
 - Refactored modules and tidied up message creation and wallets
 
-v0.0.4 - 2010-04-07
+v0.0.4 - 2019-04-07
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -127,7 +153,7 @@ v0.0.4 - 2010-04-07
 - Wallet initialise from private key or mnemonic string
 - Create wallet by generating a mnemonic
 
-v0.0.3 - 2010-04-06
+v0.0.3 - 2019-04-06
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -135,7 +161,7 @@ v0.0.3 - 2010-04-06
 - Transaction Broadcasts
 - Generated Docs
 
-v0.0.2 - 2010-04-04
+v0.0.2 - 2019-04-04
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -143,7 +169,7 @@ v0.0.2 - 2010-04-04
 - NodeRPC implementation
 - Websockets
 
-v0.0.1 - 2010-02-24
+v0.0.1 - 2019-02-24
 ^^^^^^^^^^^^^^^^^^^
 
 - HTTP API Implementation
