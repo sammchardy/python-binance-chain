@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.1.13 - 2019-04-28
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- `get_address` function for Ledger hardware wallet
+- better error handling and parsing of Ledger hardware wallet responses
+
 v0.1.12 - 2019-04-27
 ^^^^^^^^^^^^^^^^^^^^
 
