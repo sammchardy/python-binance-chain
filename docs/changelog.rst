@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.1.14 - 2019-04-28
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Simple transaction signing example
+
+**Fixed**
+
+- Depth Cache doesn't wait for websocket messages before outputting
+
 v0.1.13 - 2019-04-28
 ^^^^^^^^^^^^^^^^^^^^
 
