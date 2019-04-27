@@ -859,11 +859,20 @@ Uses the `btchip-python library <https://github.com/LedgerHQ/btchip-python>`_ if
     print(app.get_version())
 
     # Show your address on the Ledger
-    print(app.get_version())
+    print(app.show_address())
 
-    # Show your address on the Ledger
+    # Get your address and public key from the Ledger
+    print(app.get_address())
+
+    # Get your public key from the Ledger
     print(app.get_public_key())
 
+
+Create a Wallet to use with the HTTP and Node RPC clients
+
+.. code:: python
+
+    # this will prompt you on your Ledger to confirm the address you want to use
     wallet = LedgerWallet(app, env=testnet_env)
 
 
