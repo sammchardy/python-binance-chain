@@ -1,11 +1,12 @@
 Changelog
 =========
 
-v0.1.14 - 2019-04-28
+v0.1.15 - 2019-04-28
 ^^^^^^^^^^^^^^^^^^^^
 
 **Added**
 
+- Vote transaction type
 - Simple transaction signing example
 
 **Fixed**
