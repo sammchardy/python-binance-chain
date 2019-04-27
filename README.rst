@@ -41,6 +41,7 @@ Features
 - `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
 - Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <#node-rpc-http>`_ with helper classes for limit buy and sell
+- `Sign transactions <#sign-transaction>`_ and use the signed message how you want
 - `Ledger hardware wallet <#ledger>`_ device (Ledger Blue, Nano S & Nano X) support for signing messages
 - Async `Depth Cache <#depth-cache>`_
 - `Signing Service Support <#signing-service>`_ for `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_
@@ -408,6 +409,30 @@ General case
         memo="Thanks for the beer"
     )
     res = client.broadcast_msg(transfer_msg, sync=True)
+
+
+Sign Transaction
+----------------
+
+If you want to simply sign a transaction you can do that as well.
+
+This is a transfer example
+
+.. code:: python
+
+    from binance_chain.messages import TransferMsg, Signature
+    from binance_chain.wallet import Wallet
+
+    wallet = Wallet('private_key_string')
+
+    transfer_msg = TransferMsg(
+        wallet=wallet,
+        symbol='BNB',
+        amount=1,
+        to_address='<to address>'
+    )
+    signed_msg = Signature(transfer_msg).sign()
+
 
 
 Websockets
