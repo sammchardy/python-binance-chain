@@ -45,6 +45,7 @@ Features
 - `Ledger hardware wallet <#ledger>`_ device (Ledger Blue, Nano S & Nano X) support for signing messages
 - Async `Depth Cache <#depth-cache>`_ to keep a copy of the order book locally
 - `Signing Service Support <#signing-service>`_ for `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_
+- Support for proxies and to override `Requests and AioHTTP settings <requests-and-aiohttp-settings>`_
 - `UltraJson <https://github.com/esnme/ultrajson>`_ the ultra fast JSON parsing library for efficient message handling
 - Strong Python3 typing to reduce errors
 - Response exception handling
@@ -943,6 +944,49 @@ Create a Wallet to use with the HTTP and Node RPC clients
 
     print(new_order_res)
 
+
+Requests and AioHTTP Settings
+-----------------------------
+
+`python-binance-chain` uses `requests <http://docs.python-requests.org>`_ and `aiohttp <https://github.com/aio-libs/aiohttp>`_ libraries.
+
+You can set custom requests parameters for all API calls when creating any of the http clients.
+
+.. code:: python
+
+    client = HttpApiClient(request_params={"verify": False, "timeout": 20})
+
+Check out either the `requests documentation <http://docs.python-requests.org>`_ or `aiohttp documentation <https://github.com/aio-libs/aiohttp>`_ for all options.
+
+**Proxy Settings**
+
+You can use the settings method above
+
+.. code:: python
+
+    proxies = {
+        'http': 'http://10.10.1.10:3128',
+        'https': 'http://10.10.1.10:1080'
+    }
+
+    # in the Client instantiation
+    client = HttpApiClient(request_params={'proxies': proxies})
+
+Or set an environment variable for your proxy if required to work across all requests.
+
+An example for Linux environments from the `requests Proxies documentation <http://docs.python-requests.org/en/master/user/advanced/#proxies>`_ is as follows.
+
+.. code-block:: bash
+
+    $ export HTTP_PROXY="http://10.10.1.10:3128"
+    $ export HTTPS_PROXY="http://10.10.1.10:1080"
+
+For Windows environments
+
+.. code-block:: bash
+
+    C:\>set HTTP_PROXY=http://10.10.1.10:3128
+    C:\>set HTTPS_PROXY=http://10.10.1.10:1080
 
 
 Donate
