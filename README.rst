@@ -153,7 +153,7 @@ An implementation of the HTTP Client above using aiohttp instead of requests
 
 Use the async `create` classmethod to initialise an instance of the class.
 
-All methods are otherwise the same as the binance_chain.http.HttpApiClient
+All methods are otherwise the same as the HttpApiClient
 
 
 .. code:: python
