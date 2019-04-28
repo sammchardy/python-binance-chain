@@ -43,8 +43,9 @@ Features
 - Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <#node-rpc-http>`_ with helper classes for limit buy and sell
 - `Sign transactions <#sign-transaction>`_ and use the signed message how you want
 - `Ledger hardware wallet <#ledger>`_ device (Ledger Blue, Nano S & Nano X) support for signing messages
-- Async `Depth Cache <#depth-cache>`_
+- Async `Depth Cache <#depth-cache>`_ to keep a copy of the order book locally
 - `Signing Service Support <#signing-service>`_ for `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_
+- `UltraJson <https://github.com/esnme/ultrajson>`_ the ultra fast JSON parsing library for efficient message handling
 - Strong Python3 typing to reduce errors
 - Response exception handling
 
@@ -70,6 +71,7 @@ Quick Start
 
 If having issues with secp256k1 check the `Installation instructions for the sec256k1-py library <https://github.com/ludbb/secp256k1-py#installation>`_
 
+If using the production server there is no need to pass the environment variable.
 
 .. code:: python
 
@@ -185,9 +187,9 @@ All methods are otherwise the same as the binance_chain.http.HttpApiClient
 Environments
 ------------
 
-Binance Chain offers a Testnet and an upcoming Production system.
+Binance Chain offers a Production system and Testnet.
 
-To interact with Binance Chain now you must use the Testnet environment for the HttpApiClient, Websocket and the Wallet.
+If using the Production system there is no need to pass an environment as this is the default.
 
 To create and use the Testnet environment is as easy as
 
@@ -198,6 +200,16 @@ To create and use the Testnet environment is as easy as
     # initialise with Testnet environment
     testnet_env = BinanceEnvironment.get_testnet_env()
 
+You may also create your own custom environments, this may be useful such as connecting to a Node RPC client
+
+.. code:: python
+
+    from binance_chain.environment import BinanceEnvironment
+
+    # create custom environment
+    my_env = BinanceEnvironment(api_url="<api_url>", wss_url="<wss_url>", hrp="<hrp>")
+
+
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.environment>`_ docs for more information.
 
 Wallet
@@ -205,11 +217,13 @@ Wallet
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.wallet>`_ docs for more information.
 
-The wallet is required if you want to send orders or freeze tokens.
+The wallet is required if you want to place orders, transfer funds or freeze and unfreeze tokens.
+
+You may also use the `Ledger Wallet class <#ledger>`_ to utilise your Ledger Hardware Wallet for signing.
 
 It can be initialised with your private key or your mnemonic phrase.
 
-Note that the BinanceEnvironemnt used for the wallet must match that of the HttpApiClient, testnet addresses will not
+Note that the BinanceEnvironment used for the wallet must match that of the HttpApiClient, testnet addresses will not
 work on the production system.
 
 The Wallet class can also create a new account for you by calling the `Wallet.create_random_wallet()` function,
@@ -516,7 +530,7 @@ Node RPC HTTP
 
 See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.html#module-binance_chain.node_rpc>`_ docs for more information.
 
-The binance_chain.http.HttpApiClient has a helper function get_node_peers() which returns a list of peers with Node RPC functionality
+The binance_chain.http.HttpApiClient has a helper function `get_node_peers()` which returns a list of peers with Node RPC functionality
 
 .. code:: python
 
