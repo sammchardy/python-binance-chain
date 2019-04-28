@@ -35,9 +35,9 @@ Features
 
 - Support for Testnet and Production `environments <#environments>`_, along with user defined environment
 - HTTP API `sync <#quick-start>`_ and `async <#async-http-client>`_ implementations
-- `Async Websockets <#websockets>`_
+- `Async Websockets <#websockets>`_ with auto-reconnection and backoff retry algorithm
 - HTTP RPC Node `sync <#node-rpc-http>`_ and `async <#node-rpc-http-async>`_ implementations
-- `Async Node RPC Websockets <#node-rpc-websockets>`_
+- `Async Node RPC Websockets <#node-rpc-websockets>`_ with auto-reconnection and backoff retry algorithm
 - `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
 - Broadcast Transactions over `HTTP <#broadcast-messages-on-httpapiclient>`_ and `RPC <#node-rpc-http>`_ with helper classes for limit buy and sell
