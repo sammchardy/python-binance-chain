@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.1.17 - 2019-04-29
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- UltraJson ultra fast JSON parser library
+- Docs for requests/aiohttp params and proxy support
+- more docs and tests
+
+**Fixed**
+
+- DepthCache close method
+
 v0.1.16 - 2019-04-28
 ^^^^^^^^^^^^^^^^^^^^
 
