@@ -259,5 +259,5 @@ class DepthCacheManager(object):
 
         :return:
         """
-        await self._bm.close()
+        await self._bm.close_connection()
         self._depth_cache = None
