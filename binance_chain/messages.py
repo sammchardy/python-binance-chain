@@ -500,7 +500,7 @@ class VoteMsg(Msg):
         VoteOption.NO_WITH_VETO: 4
     }
 
-    def __init__(self, proposal_id: int, vote_option: VoteOption, wallet: Optional[Wallet] = None):
+    def __init__(self, proposal_id: int, vote_option: VoteOption, wallet: Optional[BaseWallet] = None):
         """Place a vote for a proposal from the given wallet address.
 
         :param proposal_id: ID of the proposal
