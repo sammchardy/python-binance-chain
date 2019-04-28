@@ -1,4 +1,4 @@
-import json
+import ujson as json
 
 
 class BinanceChainAPIException(Exception):
@@ -20,7 +20,7 @@ class BinanceChainAPIException(Exception):
         self.request = getattr(response, 'request', None)
 
     def __str__(self):  # pragma: no cover
-        return 'APIError(code=%s): %s' % (self.code, self.message)
+        return f'APIError(code={self.code}): {self.message}'
 
 
 class BinanceChainRequestException(Exception):
@@ -50,4 +50,4 @@ class BinanceChainRPCException(Exception):
         self.request = getattr(response, 'request', None)
 
     def __str__(self):  # pragma: no cover
-        return 'RPCError(code=%s): %s' % (self.message, )
+        return f'RPCError(code={self.code}): {self.message}'

@@ -1,4 +1,5 @@
 import logging
+import ujson
 from typing import Optional, Dict
 
 import asyncio
@@ -11,6 +12,9 @@ from binance_chain.constants import PeerType, KlineInterval, OrderSide, OrderSta
 from binance_chain.exceptions import (
     BinanceChainAPIException, BinanceChainRequestException, BinanceChainBroadcastException
 )
+
+
+requests.models.json = ujson
 
 
 class BaseApiClient:
@@ -737,7 +741,8 @@ class AsyncHttpApiClient(BaseApiClient):
         loop = kwargs.get('loop', asyncio.get_event_loop())
         session = aiohttp.ClientSession(
             loop=loop,
-            headers=self._get_headers()
+            headers=self._get_headers(),
+            json_serialize=ujson.dumps
         )
         return session
 

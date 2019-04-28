@@ -1,3 +1,4 @@
+import ujson
 from typing import Optional, Dict
 
 import asyncio
@@ -9,6 +10,9 @@ from binance_chain.exceptions import (
     BinanceChainAPIException, BinanceChainRequestException,
     BinanceChainSigningAuthenticationException
 )
+
+
+requests.models.json = ujson
 
 
 class BaseApiSigningClient:
@@ -485,7 +489,8 @@ class AsyncHttpApiSigningClient(BaseApiSigningClient):
         loop = kwargs.get('loop', asyncio.get_event_loop())
         session = aiohttp.ClientSession(
             loop=loop,
-            headers=self._headers
+            headers=self._headers,
+            json_serialize=ujson.dumps
         )
         return session
 
