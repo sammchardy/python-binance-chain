@@ -48,6 +48,7 @@ Features
 - Support for proxies and to override `Requests and AioHTTP settings <requests-and-aiohttp-settings>`_
 - `UltraJson <https://github.com/esnme/ultrajson>`_ the ultra fast JSON parsing library for efficient message handling
 - Strong Python3 typing to reduce errors
+- pytest `test suite <#running-tests>`_
 - Response exception handling
 
 Read the `Changelog <https://python-binance-chain.readthedocs.io/en/latest/changelog.html>`_
@@ -987,6 +988,18 @@ For Windows environments
 
     C:\>set HTTP_PROXY=http://10.10.1.10:3128
     C:\>set HTTPS_PROXY=http://10.10.1.10:1080
+
+
+Running Tests
+-------------
+
+.. code-block:: bash
+
+    git clone https://github.com/sammchardy/python-binance-chain.git
+    cd python-binance-chain
+    pip install -r test-requirements.txt
+
+    python -m pytest tests/
 
 
 Donate
