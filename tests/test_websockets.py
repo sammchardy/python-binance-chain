@@ -34,4 +34,3 @@ class TestWebsockets:
         assert bcsm
 
         await bcsm.close_connection()
-

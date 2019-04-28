@@ -1,4 +1,4 @@
-import json
+import ujson as json
 import binascii
 from typing import Dict, Union, Optional
 from decimal import Decimal
@@ -89,7 +89,7 @@ class Signature:
             ('msgs', [self._msg.to_dict()]),
             ('sequence', str(self._msg.wallet.sequence)),
             ('source', str(self._source))
-        ]), separators=(',', ':'), ensure_ascii=False)
+        ]), ensure_ascii=False)
 
     def to_bytes_json(self):
         return self.to_json().encode()

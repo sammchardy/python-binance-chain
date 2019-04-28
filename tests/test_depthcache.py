@@ -1,4 +1,8 @@
-from binance_chain.depthcache import DepthCache
+import pytest
+
+from binance_chain.depthcache import DepthCache, DepthCacheManager
+from binance_chain.environment import BinanceEnvironment
+from binance_chain.http import HttpApiClient
 
 
 class TestDepthCache:
@@ -89,3 +93,30 @@ class TestDepthCache:
 
         assert dc.get_asks() == [ask, ask2]
         assert len(dc.get_bids()) == 0
+
+
+class TestDepthCacheConnection:
+
+    @pytest.fixture()
+    def env(self):
+        return BinanceEnvironment.get_testnet_env()
+
+    @pytest.fixture
+    def httpclient(self, env):
+        return HttpApiClient(env=env)
+
+    @pytest.mark.asyncio
+    async def test_depthcache_create(self, event_loop, env):
+
+        async def callback(_depth_cache):
+            pass
+
+        client = HttpApiClient(env=env)
+
+        dcm1 = await DepthCacheManager.create(client, event_loop, "MITH-C76_BNB", callback, env=env)
+
+        assert dcm1
+
+        assert dcm1.get_depth_cache()
+
+        await dcm1.close()
