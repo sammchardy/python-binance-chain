@@ -1,5 +1,5 @@
 import itertools
-import json
+import ujson as json
 from collections import OrderedDict
 
 
@@ -27,4 +27,4 @@ class RpcRequest:
         if self._params:
             request['params'] = self._params
 
-        return json.dumps(self._sort_request(request), separators=(',', ':'), ensure_ascii=False)
+        return json.dumps(self._sort_request(request), ensure_ascii=False)

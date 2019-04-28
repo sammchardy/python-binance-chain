@@ -1,5 +1,5 @@
 import asyncio
-import json
+import ujson as json
 import logging
 from random import random
 from typing import Dict, Callable, Awaitable, Optional, List
@@ -98,7 +98,7 @@ class ReconnectingWebsocket:
 
     async def send_keepalive(self):
         msg = {"method": "keepAlive"}
-        await self._socket.send(json.dumps(msg, separators=(',', ':'), ensure_ascii=False))
+        await self._socket.send(json.dumps(msg, ensure_ascii=False))
 
     async def send_message(self, msg, retry_count=0):
         if not self._socket:
@@ -108,7 +108,7 @@ class ReconnectingWebsocket:
             else:
                 logging.info("Unable to send, not connected")
         else:
-            await self._socket.send(json.dumps(msg, separators=(',', ':'), ensure_ascii=False))
+            await self._socket.send(json.dumps(msg, ensure_ascii=False))
 
     async def ping(self):
         await self._socket.ping()

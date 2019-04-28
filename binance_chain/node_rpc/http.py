@@ -4,11 +4,15 @@ from typing import Optional, Dict
 
 import requests
 import aiohttp
+import ujson
 
 from binance_chain.exceptions import BinanceChainRPCException, BinanceChainRequestException
 from binance_chain.constants import RpcBroadcastRequestType
 from binance_chain.messages import Msg
 from binance_chain.node_rpc.request import RpcRequest
+
+
+requests.models.json = ujson
 
 
 class BaseHttpRpcClient:
@@ -442,7 +446,8 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
         loop = kwargs.get('loop', asyncio.get_event_loop())
         session = aiohttp.ClientSession(
             loop=loop,
-            headers=self._get_headers()
+            headers=self._get_headers(),
+            json_serialize=ujson.dumps
         )
         return session
 
