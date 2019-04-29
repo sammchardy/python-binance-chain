@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.1.18 - 2019-04-29
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Advanced async Pooled HTTP RPC Node client spreading requests over available peers
+
+**Updated**
+
+- RPC request id behaviour to work across multiple connections
+
 v0.1.17 - 2019-04-29
 ^^^^^^^^^^^^^^^^^^^^
 
