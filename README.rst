@@ -1,5 +1,5 @@
 =======================================
-Welcome to python-binance-chain v0.1.18
+Welcome to python-binance-chain v0.1.19
 =======================================
 
 .. image:: https://img.shields.io/pypi/v/python-binance-chain.svg
@@ -46,7 +46,7 @@ Features
 - `Ledger hardware wallet <#ledger>`_ device (Ledger Blue, Nano S & Nano X) support for signing messages
 - Async `Depth Cache <#depth-cache>`_ to keep a copy of the order book locally
 - `Signing Service Support <#signing-service>`_ for `binance-chain-signing-service <https://github.com/sammchardy/binance-chain-signing-service>`_
-- Support for proxies and to override `Requests and AioHTTP settings <requests-and-aiohttp-settings>`_
+- Support for HTTP and HTTPS proxies and to override `Requests and AioHTTP settings <requests-and-aiohttp-settings>`_
 - `UltraJson <https://github.com/esnme/ultrajson>`_ the ultra fast JSON parsing library for efficient message handling
 - Strong Python3 typing to reduce errors
 - pytest `test suite <#running-tests>`_

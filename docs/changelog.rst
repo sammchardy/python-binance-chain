@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.1.19 - 2019-04-30
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Shuffling of peer nodes in the Pooled HTTP RPC Node client
+
 v0.1.18 - 2019-04-29
 ^^^^^^^^^^^^^^^^^^^^
 
