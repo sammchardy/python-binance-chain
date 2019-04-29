@@ -37,6 +37,7 @@ Features
 - HTTP API `sync <#quick-start>`_ and `async <#async-http-client>`_ implementations
 - `Async Websockets <#websockets>`_ with auto-reconnection and backoff retry algorithm
 - HTTP RPC Node `sync <#node-rpc-http>`_ and `async <#node-rpc-http-async>`_ implementations
+- Advanced async `Pooled HTTP RPC Node client <#pooled-node-rpc-client>`_ spreading requests over available peers
 - `Async Node RPC Websockets <#node-rpc-websockets>`_ with auto-reconnection and backoff retry algorithm
 - `Wallet <#wallet>`_ creation from private key or mnemonic or new wallet with random mnemonic
 - Wallet handling account sequence for transactions
@@ -643,6 +644,64 @@ If the sequence gets out of sync call `wallet.reload_account_sequence(client)`, 
     res = rpc_client.broadcast_msg(new_order_msg, request_type=RpcBroadcastRequestType.COMMIT)
 
 Other messages can be constructed similar to examples above
+
+Pooled Node RPC Client
+----------------------
+
+This client connects to all available peer nodes in the network and spreads requests across them.
+
+This helps reduce API rate limit errors.
+
+The interface is the same as the above HttpRpcClient and AsyncHttpRpcClient classes for consistency.
+
+Requests can be sent using `asyncio gather <https://docs.python.org/3/library/asyncio-task.html#asyncio.gather>`_ note to
+check the number of clients connected to and not exceed that amount
+
+.. code:: python
+
+    import asyncio
+    from binance_chain.node_rpc.pooled_client import PooledRpcClient
+
+
+    async def main():
+
+        # initialise the client, default production environment
+        client = await PooledRpcClient.create()
+
+        # optionally include an environment
+        testnet_env = BinanceEnvironment.get_testnet_env()
+        client = await PooledRpcClient.create(env=testnet_env)
+
+        # show the number of peers connected with the num_peers property
+        print(f"Connected to {client.num_peers} peers")
+
+        # requests can be send in bulk using asyncio gather
+        for i in range(0, 5):
+            res = await asyncio.gather(
+                client.get_abci_info(),
+                client.get_consensus_state(),
+                client.get_net_info(),
+                client.get_status(),
+                client.get_health(),
+            )
+            print(f'{i}: {res}')
+
+        print(await client.get_block(1000))
+
+        print(await client.get_blockchain_info(1000, 2000))
+
+    if __name__ == "__main__":
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
+
+To keep the peer connections up to date you may re-initialise the list of peers by calling the `initialise_peers` function
+
+.. code:: python
+
+    client.initialise_peers()
+
 
 Node RPC Websockets
 -------------------
