@@ -1,5 +1,7 @@
 import asyncio
+import logging
 from typing import Optional
+from random import shuffle
 
 
 from binance_chain.http import AsyncHttpApiClient
@@ -40,11 +42,13 @@ class PooledRpcClient:
         """
         client = await AsyncHttpApiClient.create(loop=self._loop, env=self._env)
         peers = await client.get_node_peers()
+        shuffle(peers)
 
         self._clients = []
         for peer in peers:
-            print(f"creating client {peer['listen_addr']}")
+            logging.info(f"Creating client {peer['listen_addr']}")
             self._clients.append(await AsyncHttpRpcClient.create(endpoint_url=peer['listen_addr']))
+        logging.debug(f"Connected to {self.num_peers} peers")
 
     @property
     def num_peers(self):
@@ -54,12 +58,11 @@ class PooledRpcClient:
         params = params or {}
         if params.get('self'):
             del params['self']
-        print(params)
         client = self._get_client()
         return await getattr(client, func_name)(**params)
 
     def _get_client(self):
-        print(f"using client {self._client_idx}")
+        logging.debug(f"using client {self._client_idx}")
         client = self._clients[self._client_idx]
         self._client_idx = (self._client_idx + 1) % len(self._clients)
         return client
