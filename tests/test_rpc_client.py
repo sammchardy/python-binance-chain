@@ -96,10 +96,10 @@ class TestRpcRequest:
     def test_json_string_building(self):
         # reset id count
         RpcRequest.id_generator = itertools.count(1)
-        req = RpcRequest("mymethod", {'param1': 'this', 'otherparam': 'that'})
+        req = RpcRequest("mymethod", 1, {'param1': 'this', 'otherparam': 'that'})
 
         assert str(req) == '{"jsonrpc":"2.0","method":"mymethod","params":{"param1":"this","otherparam":"that"},"id":1}'
 
-        req2 = RpcRequest("mymethod", {'param1': 'this', 'otherparam': 'that'})
+        req2 = RpcRequest("mymethod", 2, {'param1': 'this', 'otherparam': 'that'})
         assert str(req2) == \
                '{"jsonrpc":"2.0","method":"mymethod","params":{"param1":"this","otherparam":"that"},"id":2}'
