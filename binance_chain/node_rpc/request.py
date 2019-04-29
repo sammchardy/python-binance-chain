@@ -1,16 +1,14 @@
-import itertools
 import ujson as json
 from collections import OrderedDict
 
 
 class RpcRequest:
 
-    id_generator = itertools.count(1)
-
-    def __init__(self, method, params=None):
+    def __init__(self, method, id, params=None):
 
         self._method = method
         self._params = params
+        self._id = id
 
     def _sort_request(self, request):
         sort_order = ["jsonrpc", "method", "params", "id"]
@@ -21,7 +19,7 @@ class RpcRequest:
         request = {
             'jsonrpc': '2.0',
             'method': self._method,
-            'id': next(self.id_generator)
+            'id': self._id
         }
 
         if self._params:
