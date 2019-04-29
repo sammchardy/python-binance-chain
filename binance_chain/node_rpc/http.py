@@ -33,7 +33,7 @@ class BaseHttpRpcClient:
 
     def _get_rpc_request(self, path, **kwargs) -> str:
 
-        rpc_request = RpcRequest(path, kwargs.get('data', None))
+        rpc_request = RpcRequest(path, next(self.id_generator), kwargs.get('data', None))
 
         return str(rpc_request)
 

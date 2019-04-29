@@ -1,4 +1,5 @@
 import asyncio
+import itertools
 from typing import Callable, Awaitable, Optional, Dict
 
 from binance_chain.node_rpc.http import HttpRpcClient
@@ -10,6 +11,8 @@ from binance_chain.node_rpc.request import RpcRequest
 
 
 class ReconnectingRpcWebsocket(ReconnectingWebsocket):
+
+    id_generator = itertools.count(1)
 
     def _get_ws_endpoint_url(self):
         return f"{self._env.wss_url}/websocket"
@@ -23,7 +26,7 @@ class ReconnectingRpcWebsocket(ReconnectingWebsocket):
                 await asyncio.sleep(1)
                 await self.send_rpc_message(method, params, retry_count + 1)
         else:
-            req = RpcRequest(method, params)
+            req = RpcRequest(method, next(self.id_generator), params)
             await self._socket.send(str(req))
 
     async def ping(self):
