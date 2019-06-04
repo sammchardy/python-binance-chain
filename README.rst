@@ -128,16 +128,16 @@ If using the production server there is no need to pass the environment variable
     # get open orders
     open_orders = client.get_open_orders('tbnb185tqzq3j6y7yep85lncaz9qeectjxqe5054cgn')
 
-    # get open orders
+    # get ticker
     ticker = client.get_ticker('NNB-0AD_BNB')
 
-    # get open orders
+    # get trades
     trades = client.get_trades(limit=2)
 
-    # get open orders
+    # get order
     order = client.get_order('9D0537108883C68B8F43811B780327CE97D8E01D-2')
 
-    # get open orders
+    # get trades
     trades = client.get_trades()
 
     # get transactions
