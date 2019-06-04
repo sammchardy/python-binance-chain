@@ -294,7 +294,7 @@ General case
     from binance_chain.messages import NewOrderMsg
     from binance_chain.wallet import Wallet
     from binance_chain.constants import TimeInForce, OrderSide, OrderType
-    import Decimal
+    from decimal import Decimal
 
     wallet = Wallet('private_key_string')
     client = HttpApiClient()
@@ -366,7 +366,7 @@ General case
     from binance_chain.http import HttpApiClient
     from binance_chain.messages import FreezeMsg
     from binance_chain.wallet import Wallet
-    import Decimal
+    from decimal import Decimal
 
     wallet = Wallet('private_key_string')
     client = HttpApiClient()
@@ -388,7 +388,7 @@ General case
     from binance_chain.http import HttpApiClient
     from binance_chain.messages import UnFreezeMsg
     from binance_chain.wallet import Wallet
-    import Decimal
+    from decimal import Decimal
 
     wallet = Wallet('private_key_string')
     client = HttpApiClient()
