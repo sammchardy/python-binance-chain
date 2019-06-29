@@ -111,7 +111,7 @@ class HttpApiClient(BaseApiClient):
         try:
             res = response.json()
 
-            if 'code' in res and res['code'] != "200000":
+            if 'code' in res and res['code'] not in [0, "200000"]:
                 raise BinanceChainAPIException(response, response.status_code)
 
             if 'success' in res and not res['success']:
@@ -765,7 +765,7 @@ class AsyncHttpApiClient(BaseApiClient):
         try:
             res = await response.json()
 
-            if 'code' in res and res['code'] != "200000":
+            if 'code' in res and res['code'] not in [0, "200000"]:
                 raise BinanceChainAPIException(response, response.status)
 
             if 'success' in res and not res['success']:
