@@ -129,7 +129,7 @@ class BinanceChainSocketManagerBase:
 
         """
         self._env = env
-        self._callback: Callable[[int], Awaitable[str]]
+        self._callback = None
         self._conn = None
         self._loop = None
         self._log = logging.getLogger(__name__)
