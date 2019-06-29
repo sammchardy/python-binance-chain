@@ -11,22 +11,22 @@ from binance_chain.constants import KlineInterval
 
 class ReconnectingWebsocket:
 
-    MAX_RECONNECTS: int = 5
-    MAX_RECONNECT_SECONDS: int = 60
+    MAX_RECONNECTS = 5
+    MAX_RECONNECT_SECONDS = 60
     MIN_RECONNECT_WAIT = 0.1
-    TIMEOUT: int = 10
-    PROTOCOL_VERSION: str = '1.0.0'
+    TIMEOUT = 10
+    PROTOCOL_VERSION = '1.0.0'
 
     def __init__(self, loop, coro, env: BinanceEnvironment):
         self._loop = loop
         self._log = logging.getLogger(__name__)
         self._coro = coro
-        self._reconnect_attempts: int = 0
+        self._reconnect_attempts = 0
         self._conn = None
         self._env = env
-        self._connect_id: int = None
+        self._connect_id = None
         self._ping_timeout = 60
-        self._socket: Optional[ws.client.WebSocketClientProtocol] = None
+        self._socket = None
 
         self._connect()
 
