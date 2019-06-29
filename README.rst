@@ -418,6 +418,28 @@ General case
     )
     res = client.broadcast_msg(transfer_msg, sync=True)
 
+**Transfer Multiple Tokens**
+
+.. code:: python
+
+    from binance_chain.http import HttpApiClient
+    from binance_chain.messages import TransferMsg, Transfer
+    from binance_chain.wallet import Wallet
+
+    wallet = Wallet('private_key_string')
+    client = HttpApiClient()
+
+    multi_transfer_msg = TransferMsg(
+        wallet=wallet,
+        transfers=[
+            Transfer(symbol='ETH.B', amount=1),
+            Transfer(symbol='BNB', amount=1),
+        ],
+        to_address='<to address>',
+        memo='Thanks for the beer'
+    )
+    res = client.broadcast_msg(multi_transfer_msg, sync=True)
+
 **Vote for proposal**
 
 .. code:: python

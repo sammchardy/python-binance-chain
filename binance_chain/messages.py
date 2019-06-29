@@ -1,6 +1,6 @@
 import ujson as json
 import binascii
-from typing import Dict, Union, Optional
+from typing import List, Dict, Union, Optional, NamedTuple
 from decimal import Decimal
 from collections import OrderedDict
 
@@ -14,6 +14,11 @@ from binance_chain.utils.segwit_addr import decode_address
 
 # An identifier for tools triggering broadcast transactions, set to zero if unwilling to disclose.
 BROADCAST_SOURCE = 0
+
+
+class Transfer(NamedTuple):
+    amount: Union[int, float, Decimal]
+    symbol: str
 
 
 class Msg:
@@ -475,6 +480,78 @@ class TransferMsg(Msg):
         output_addr = Output()
         output_addr.address = decode_address(self._to_address)
         output_addr.coins.extend([token])
+
+        msg = Send()
+        msg.inputs.extend([input_addr])
+        msg.outputs.extend([output_addr])
+        return msg
+
+
+class MultiTransferMsg(Msg):
+
+    AMINO_MESSAGE_TYPE = b"2A2C87FA"
+
+    def __init__(self, transfers: List[Transfer],
+                 to_address: str, wallet: Optional[BaseWallet] = None, memo: str = ''):
+        """Transferring funds between different addresses.
+
+        :param transfers: List of tokens and amounts to send
+        :param to_address: amount of token to freeze
+        """
+        super().__init__(wallet, memo)
+        self._transfers = transfers
+        self._transfers.sort(key=lambda x: x.symbol)
+        self._from_address = wallet.address if wallet else None
+        self._to_address = to_address
+
+    def to_dict(self):
+        return OrderedDict([
+            ('inputs', [
+                OrderedDict([
+                    ('address', self._from_address),
+                    ('coins', [
+                        OrderedDict([
+                            ('amount', encode_number(transfer.amount)),
+                            ('denom', transfer.symbol)
+                        ]) for transfer in self._transfers
+                    ])
+                ])
+            ]),
+            ('outputs', [
+                OrderedDict([
+                    ('address', self._to_address),
+                    ('coins', [
+                        OrderedDict([
+                            ('amount', encode_number(transfer.amount)),
+                            ('denom', transfer.symbol)
+                        ]) for transfer in self._transfers
+                    ])
+                ])
+            ])
+        ])
+
+    def to_sign_dict(self):
+        return {
+            'to_address': self._to_address,
+            'transfers': [
+                {
+                    'amount': transfer.amount,
+                    'denom': transfer.symbol,
+                } for transfer in self._transfers
+            ]
+        }
+
+    def to_protobuf(self) -> Send:
+        input_addr = Input()
+        output_addr = Output()
+        for transfer in self._transfers:
+            token = Token()
+            token.denom = transfer.symbol
+            token.amount = encode_number(transfer.amount)
+            input_addr.coins.extend([token])
+            output_addr.coins.extend([token])
+        input_addr.address = decode_address(self._from_address)
+        output_addr.address = decode_address(self._to_address)
 
         msg = Send()
         msg.inputs.extend([input_addr])
