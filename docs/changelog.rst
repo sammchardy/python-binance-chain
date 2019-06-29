@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.1.20 - 2019-06-29
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- Multi Transfer Msg option
+
+**Fixed**
+
+- Response code of 0 for http requests
+
 v0.1.19 - 2019-04-30
 ^^^^^^^^^^^^^^^^^^^^
 
