@@ -38,7 +38,7 @@ class ReconnectingWebsocket:
 
     async def _run(self):
 
-        keep_waiting: bool = True
+        keep_waiting = True
 
         logging.info("connecting to {}".format(self._get_ws_endpoint_url()))
         try:
