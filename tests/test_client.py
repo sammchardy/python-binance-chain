@@ -22,7 +22,7 @@ class TestClient:
 
     def load_fixture(self, file_name):
         this_dir = os.path.dirname(os.path.realpath(__file__))
-        with open(f'{this_dir}/fixtures/{file_name}', 'r') as f:
+        with open('{}/fixtures/{}'.format(this_dir, file_name), 'r') as f:
             return json.load(f)
 
     def test_get_time(self, httpclient):
@@ -173,7 +173,7 @@ class TestAsyncClient:
 
     def load_fixture(self, file_name):
         this_dir = os.path.dirname(os.path.realpath(__file__))
-        with open(f'{this_dir}/fixtures/{file_name}', 'r') as f:
+        with open('{}/fixtures/{}'.format(this_dir, file_name), 'r') as f:
             return json.load(f)
 
     @pytest.mark.asyncio
