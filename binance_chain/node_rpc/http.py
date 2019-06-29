@@ -83,7 +83,7 @@ class HttpRpcClient(BaseHttpRpcClient):
             'headers': self._get_headers()
         }
 
-        response = self.session.get(f"{self._endpoint_url}/{path}", **kwargs)
+        response = self.session.get("{}/{}".format(self._endpoint_url, path), **kwargs)
 
         return self._handle_session_response(response)
 
@@ -465,7 +465,7 @@ class AsyncHttpRpcClient(BaseHttpRpcClient):
             'headers': self._get_headers()
         }
 
-        response = await self.session.get(f"{self._endpoint_url}/{path}", **kwargs)
+        response = await self.session.get("{}/{}".format(self._endpoint_url, path), **kwargs)
 
         return await self._handle_session_response(response)
 

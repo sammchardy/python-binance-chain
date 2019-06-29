@@ -111,7 +111,7 @@ class HttpApiClient(BaseApiClient):
         try:
             res = response.json()
 
-            if 'code' in res and res['code'] != "200000":
+            if 'code' in res and res['code'] not in [0, "200000"]:
                 raise BinanceChainAPIException(response, response.status_code)
 
             if 'success' in res and not res['success']:
@@ -230,7 +230,7 @@ class HttpApiClient(BaseApiClient):
         :return: API Response
 
         """
-        return self._get(f"account/{address}")
+        return self._get("account/{}".format(address))
 
     def get_account_sequence(self, address: str):
         """Gets an account sequence for an address.
@@ -246,7 +246,7 @@ class HttpApiClient(BaseApiClient):
         .. code-block:: python
 
         """
-        return self._get(f"account/{address}/sequence")
+        return self._get("account/{}/sequence".format(address))
 
     def get_transaction(self, transaction_hash: str):
         """Gets transaction metadata by transaction ID
@@ -261,7 +261,7 @@ class HttpApiClient(BaseApiClient):
 
         """
 
-        return self._get(f"tx/{transaction_hash}?format=json")
+        return self._get("tx/{}?format=json".format(transaction_hash))
 
     def get_tokens(self):
         """Gets a list of tokens that have been issued
@@ -371,7 +371,7 @@ class HttpApiClient(BaseApiClient):
 
         req_path = 'broadcast'
         if sync:
-            req_path += f'?sync=1'
+            req_path += '?sync=1'
 
         res = self._post(req_path, data=data)
         msg.wallet.increment_account_sequence()
@@ -419,7 +419,7 @@ class HttpApiClient(BaseApiClient):
         """
         req_path = 'broadcast'
         if sync:
-            req_path += f'?sync=1'
+            req_path += '?sync=1'
 
         res = self._post(req_path, data=hex_msg)
         return res
@@ -554,7 +554,7 @@ class HttpApiClient(BaseApiClient):
 
         """
 
-        return self._get(f"orders/{order_id}")
+        return self._get("orders/{}".format(order_id))
 
     def get_ticker(self, symbol: str):
         """Gets 24 hour price change statistics for a market pair symbol
@@ -765,7 +765,7 @@ class AsyncHttpApiClient(BaseApiClient):
         try:
             res = await response.json()
 
-            if 'code' in res and res['code'] != "200000":
+            if 'code' in res and res['code'] not in [0, "200000"]:
                 raise BinanceChainAPIException(response, response.status)
 
             if 'success' in res and not res['success']:
@@ -820,15 +820,15 @@ class AsyncHttpApiClient(BaseApiClient):
     get_websocket_peers.__doc__ = HttpApiClient.get_websocket_peers.__doc__
 
     async def get_account(self, address: str):
-        return await self._get(f"account/{address}")
+        return await self._get("account/{}".format(address))
     get_account.__doc__ = HttpApiClient.get_account.__doc__
 
     async def get_account_sequence(self, address: str):
-        return await self._get(f"account/{address}/sequence")
+        return await self._get("account/{}/sequence".format(address))
     get_account_sequence.__doc__ = HttpApiClient.get_account_sequence.__doc__
 
     async def get_transaction(self, transaction_hash: str):
-        return await self._get(f"tx/{transaction_hash}?format=json")
+        return await self._get("tx/{}?format=json".format(transaction_hash))
     get_transaction.__doc__ = HttpApiClient.get_transaction.__doc__
 
     async def get_tokens(self):
@@ -860,11 +860,11 @@ class AsyncHttpApiClient(BaseApiClient):
         msg.wallet.initialise_wallet()
         data = msg.to_hex_data()
 
-        logging.debug(f'data:{data}')
+        logging.debug('data:{}'.format(data))
 
         req_path = 'broadcast'
         if sync:
-            req_path += f'?sync=1'
+            req_path += '?sync=1'
 
         res = await self._post(req_path, data=data)
         msg.wallet.increment_account_sequence()
@@ -874,7 +874,7 @@ class AsyncHttpApiClient(BaseApiClient):
     async def broadcast_hex_msg(self, hex_msg: str, sync: bool = False):
         req_path = 'broadcast'
         if sync:
-            req_path += f'?sync=1'
+            req_path += '?sync=1'
 
         res = await self._post(req_path, data=hex_msg)
         return res
@@ -944,7 +944,7 @@ class AsyncHttpApiClient(BaseApiClient):
     get_open_orders.__doc__ = HttpApiClient.get_open_orders.__doc__
 
     async def get_order(self, order_id: str):
-        return await self._get(f"orders/{order_id}")
+        return await self._get("orders/{}".format(order_id))
     get_order.__doc__ = HttpApiClient.get_order.__doc__
 
     async def get_ticker(self, symbol: str):

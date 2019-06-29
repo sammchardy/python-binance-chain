@@ -34,13 +34,13 @@ class ReconnectingWebsocket:
         self._conn = asyncio.ensure_future(self._run())
 
     def _get_ws_endpoint_url(self):
-        return f"{self._env.wss_url}ws"
+        return "{}ws".format(self._env.wss_url)
 
     async def _run(self):
 
         keep_waiting: bool = True
 
-        logging.info(f"connecting to {self._get_ws_endpoint_url()}")
+        logging.info("connecting to {}".format(self._get_ws_endpoint_url()))
         try:
             async with ws.connect(self._get_ws_endpoint_url(), loop=self._loop) as socket:
                 self._on_connect(socket)
@@ -71,7 +71,7 @@ class ReconnectingWebsocket:
                     keep_waiting = False
                     await self._reconnect()
         except Exception as e:
-            logging.info(f"websocket error: {e}")
+            logging.info("websocket error: {}".format(e))
 
     def _on_connect(self, socket):
         self._socket = socket
@@ -82,14 +82,16 @@ class ReconnectingWebsocket:
         self._reconnect_attempts += 1
         if self._reconnect_attempts < self.MAX_RECONNECTS:
 
-            self._log.debug(f"websocket reconnecting {self.MAX_RECONNECTS - self._reconnect_attempts} attempts left")
+            self._log.debug(
+                "websocket reconnecting {} attempts left".format(self.MAX_RECONNECTS - self._reconnect_attempts)
+            )
             reconnect_wait = self._get_reconnect_wait(self._reconnect_attempts)
-            self._log.debug(f' waiting {reconnect_wait}')
+            self._log.debug(' waiting {}'.format(reconnect_wait))
             await asyncio.sleep(reconnect_wait)
             self._connect()
         else:
             # maybe raise an exception
-            self._log.error(f"websocket could not reconnect after {self._reconnect_attempts} attempts")
+            self._log.error("websocket could not reconnect after {} attempts".format(self._reconnect_attempts))
             pass
 
     def _get_reconnect_wait(self, attempts: int) -> int:
@@ -621,7 +623,7 @@ class BinanceChainSocketManager(BinanceChainSocketManagerBase):
 
         req_msg = {
             "method": "subscribe",
-            "topic": f"kline_{interval.value}",
+            "topic": "kline_{}".format(interval.value),
             "symbols": symbols
         }
         await self._conn.send_message(req_msg)
@@ -697,7 +699,7 @@ class BinanceChainSocketManager(BinanceChainSocketManagerBase):
         """
         req_msg = {
             "method": "unsubscribe",
-            "topic": f"kline_{interval.value}",
+            "topic": "kline_{}".format(interval.value),
             "symbols": symbols
         }
         await self._conn.send_message(req_msg)

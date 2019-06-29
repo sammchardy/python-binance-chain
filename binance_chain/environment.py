@@ -42,4 +42,4 @@ class BinanceEnvironment:
         return self._hrp
 
     def hash(self):
-        return hash(f"{self.api_url}{self.wss_url}{self.hrp}")
+        return hash("{}{}{}".format(self.api_url, self.wss_url, self.hrp))

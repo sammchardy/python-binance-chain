@@ -58,7 +58,7 @@ class BaseWallet:
         self._sequence = sequence_res['sequence']
 
     def generate_order_id(self):
-        return f"{binascii.hexlify(self.address_decoded).decode().upper()}-{(self._sequence + 1)}"
+        return "{}-{}".format(binascii.hexlify(self.address_decoded).decode().upper(), self._sequence + 1)
 
     def _get_http_client(self):
         if not self._http_client:

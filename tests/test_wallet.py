@@ -92,7 +92,7 @@ class TestWallet:
 
         order_id = wallet.generate_order_id()
 
-        assert order_id == f"7F756B1BE93AA2E2FDC3D7CB713ABC206F877802-{wallet.sequence + 1}"
+        assert order_id == "7F756B1BE93AA2E2FDC3D7CB713ABC206F877802-{}".format(wallet.sequence + 1)
 
     def test_sign_message(self, private_key, env):
         wallet = Wallet(private_key=private_key, env=env)

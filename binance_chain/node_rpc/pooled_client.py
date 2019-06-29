@@ -46,9 +46,9 @@ class PooledRpcClient:
 
         self._clients = []
         for peer in peers:
-            logging.info(f"Creating client {peer['listen_addr']}")
+            logging.info("Creating client {}".format(peer['listen_addr']))
             self._clients.append(await AsyncHttpRpcClient.create(endpoint_url=peer['listen_addr']))
-        logging.debug(f"Connected to {self.num_peers} peers")
+        logging.debug("Connected to {} peers".format(self.num_peers))
 
     @property
     def num_peers(self):
@@ -62,7 +62,7 @@ class PooledRpcClient:
         return await getattr(client, func_name)(**params)
 
     def _get_client(self):
-        logging.debug(f"using client {self._client_idx}")
+        logging.debug("using client {}".format(self._client_idx))
         client = self._clients[self._client_idx]
         self._client_idx = (self._client_idx + 1) % len(self._clients)
         return client

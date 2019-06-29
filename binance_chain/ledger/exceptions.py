@@ -19,4 +19,5 @@ class LedgerRequestException(Exception):
         self._request = request
 
     def __str__(self):  # pragma: no cover
-        return f'LedgerRequestException(code={self._response_code}): {self._response_msg} - request {self._request}'
+        return 'LedgerRequestException(code={}): {} - request {}'.format(
+            self._response_code, self._response_msg, self._request)

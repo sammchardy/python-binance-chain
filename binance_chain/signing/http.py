@@ -45,7 +45,7 @@ class BaseApiSigningClient:
         return session
 
     def _create_uri(self, path):
-        return f'{self._endpoint}/api/{path}'
+        return '{}/api/{}'.format(self._endpoint, path)
 
     def authenticate(self):
         raise NotImplementedError()
@@ -61,7 +61,7 @@ class BaseApiSigningClient:
 
         if self._token:
             kwargs['headers'] = {
-                'Authorization': f'Bearer {self._token}'
+                'Authorization': 'Bearer {}'.format(self._token)
             }
 
         return kwargs
@@ -462,7 +462,7 @@ class HttpApiSigningClient(BaseApiSigningClient):
         """
         req_path = 'wallet'
         if wallet_name:
-            req_path = f'wallet/{wallet_name}'
+            req_path = 'wallet/{}'.format(wallet_name)
         return self._get(req_path)
 
 
@@ -651,6 +651,6 @@ class AsyncHttpApiSigningClient(BaseApiSigningClient):
     async def wallet_info(self, wallet_name: Optional[str] = None):
         req_path = 'wallet'
         if wallet_name:
-            req_path = f'wallet/{wallet_name}'
+            req_path = 'wallet/{}'.format(wallet_name)
         return await self._get(req_path)
     wallet_info.__doc__ = HttpApiSigningClient.wallet_info.__doc__

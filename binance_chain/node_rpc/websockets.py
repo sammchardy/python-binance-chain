@@ -15,7 +15,7 @@ class ReconnectingRpcWebsocket(ReconnectingWebsocket):
     id_generator = itertools.count(1)
 
     def _get_ws_endpoint_url(self):
-        return f"{self._env.wss_url}/websocket"
+        return "{}/websocket".format(self._env.wss_url)
 
     async def send_keepalive(self):
         await self.send_rpc_message('keepAlive')
