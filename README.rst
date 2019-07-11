@@ -89,8 +89,7 @@ If using the production server there is no need to pass the environment variable
     # Alternatively pass no env to get production
     prod_client = HttpApiClient()
 
-    # connect client to different URL
-    client = HttpApiClient(api_url='https://yournet.com')
+    # connect client to different URL using custom environments, see below
 
     # get node time
     time = client.get_time()
