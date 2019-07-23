@@ -71,7 +71,7 @@ class Msg:
         """Wrap in a Standard Transaction Message and convert to hex string
 
         """
-        return binascii.hexlify(StdTxMsg(self).to_amino())
+        return binascii.hexlify(StdTxMsg(self).to_amino()).decode()
 
     def increment_sequence(self):
         self._wallet.increment_account_sequence()
