@@ -1,4 +1,4 @@
-pywallet>=0.1.0
+pycoin>=0.90.20190630
 requests>=2.21.0
 aiohttp>=3.5.4
 websockets>=7.0
