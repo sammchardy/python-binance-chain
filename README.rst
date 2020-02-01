@@ -509,7 +509,7 @@ See `API <https://python-binance-chain.readthedocs.io/en/latest/binance-chain.ht
             print(msg)
 
         # connect to testnet env
-        bcsm = await BinanceChainSocketManager.create(loop, handle_evt, address2, env=testnet_env)
+        bcsm = await BinanceChainSocketManager.create(loop, handle_evt, address, env=testnet_env)
 
         # subscribe to relevant endpoints
         await bcsm.subscribe_orders(address)
