@@ -225,6 +225,8 @@ You may also use the `Ledger Wallet class <#ledger>`_ to utilise your Ledger Har
 
 It can be initialised with your private key or your mnemonic phrase.
 
+You can additionally provide BIP39 passphrase and derived wallet id.
+
 Note that the BinanceEnvironment used for the wallet must match that of the HttpApiClient, testnet addresses will not
 work on the production system.
 
@@ -253,7 +255,10 @@ see examples below
     from binance_chain.environment import BinanceEnvironment
 
     testnet_env = BinanceEnvironment.get_testnet_env()
-    wallet = Wallet.create_wallet_from_mnemonic('mnemonic word string', env=testnet_env)
+    wallet = Wallet.create_wallet_from_mnemonic('mnemonic word string',
+                                                 passphrase='optional passphrase',
+                                                 child=0,
+                                                 env=testnet_env)
     print(wallet.address)
     print(wallet.private_key)
     print(wallet.public_key_hex)
