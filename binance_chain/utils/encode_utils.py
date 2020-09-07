@@ -12,7 +12,7 @@ def encode_number(num: Union[float, Decimal]) -> int:
     if type(num) == Decimal:
         return int(num * (Decimal(10) ** 8))
     else:
-        return int(num * math.pow(10, 8))
+        return int(round(num * 1e8))
 
 
 def varint_encode(num):
