@@ -127,16 +127,16 @@ If using the production server there is no need to pass the environment variable
     # get open orders
     open_orders = client.get_open_orders('tbnb185tqzq3j6y7yep85lncaz9qeectjxqe5054cgn')
 
-    # get open orders
+    # get ticker
     ticker = client.get_ticker('NNB-0AD_BNB')
 
-    # get open orders
+    # get trades
     trades = client.get_trades(limit=2)
 
-    # get open orders
+    # get order
     order = client.get_order('9D0537108883C68B8F43811B780327CE97D8E01D-2')
 
-    # get open orders
+    # get trades
     trades = client.get_trades()
 
     # get transactions
@@ -161,6 +161,7 @@ All methods are otherwise the same as the HttpApiClient
 
     from binance_chain.http import AsyncHttpApiClient
     from binance_chain.environment import BinanceEnvironment
+    import asyncio
 
     loop = None
 
@@ -291,6 +292,8 @@ General case
     from binance_chain.http import HttpApiClient
     from binance_chain.messages import NewOrderMsg
     from binance_chain.wallet import Wallet
+    from binance_chain.constants import TimeInForce, OrderSide, OrderType
+    from decimal import Decimal
 
     wallet = Wallet('private_key_string')
     client = HttpApiClient()
@@ -299,7 +302,7 @@ General case
     new_order_msg = NewOrderMsg(
         wallet=wallet,
         symbol="ANN-457_BNB",
-        time_in_force=TimeInForce.GTE,
+        time_in_force=TimeInForce.GOOD_TILL_EXPIRE,
         order_type=OrderType.LIMIT,
         side=OrderSide.BUY,
         price=Decimal(0.000396000),
@@ -362,6 +365,7 @@ General case
     from binance_chain.http import HttpApiClient
     from binance_chain.messages import FreezeMsg
     from binance_chain.wallet import Wallet
+    from decimal import Decimal
 
     wallet = Wallet('private_key_string')
     client = HttpApiClient()
@@ -383,6 +387,7 @@ General case
     from binance_chain.http import HttpApiClient
     from binance_chain.messages import UnFreezeMsg
     from binance_chain.wallet import Wallet
+    from decimal import Decimal
 
     wallet = Wallet('private_key_string')
     client = HttpApiClient()
@@ -598,6 +603,7 @@ All methods are the same as the binance_chain.node_rpc.http.HttpRpcClient.
     from binance_chain.node_rpc.http import AsyncHttpRpcClient
     from binance_chain.http import AsyncHttpApiClient, PeerType
     from binance_chain.environment import BinanceEnvironment
+    import asyncio
 
     loop = None
 
@@ -857,6 +863,7 @@ to create our own signing service.
 
     from binance_chain.messages import NewOrderMsg
     from binance_chain.signing.http import HttpApiSigningClient
+    from binance_chain.constants import TimeInForce, OrderSide, OrderType
 
     signing_client = HttpApiSigningClient('http://localhost:8000', username='sam', password='mypass')
 
@@ -901,6 +908,7 @@ To sign and broadcast an order use the `broadcast_order` method. This returns th
 
     from binance_chain.messages import NewOrderMsg
     from binance_chain.signing.http import HttpApiSigningClient
+    from binance_chain.constants import TimeInForce, OrderSide, OrderType
 
     signing_client = HttpApiSigningClient('http://localhost:8000', username='sam', password='mypass')
 
@@ -927,6 +935,8 @@ Like all other libraries there is an async version.
     from binance_chain.signing.http import AsyncHttpApiSigningClient
     from binance_chain.http import AsyncHttpApiClient, PeerType
     from binance_chain.environment import BinanceEnvironment
+    from binance_chain.constants import TimeInForce, OrderSide, OrderType
+    import asyncio
 
     loop = None
 
