@@ -4,7 +4,7 @@ from typing import Optional
 
 from secp256k1 import PrivateKey
 from mnemonic import Mnemonic
-from pywallet.utils.bip32 import Wallet as Bip32Wallet
+from pycoin.symbols.btc import network
 
 from binance_chain.utils.segwit_addr import address_from_public_key, decode_address
 from binance_chain.environment import BinanceEnvironment
@@ -149,9 +149,11 @@ class Wallet(BaseWallet):
             raise TypeError("Child wallet id should be of type int")
 
         seed = Mnemonic.to_seed(mnemonic, passphrase)
-        new_wallet = Bip32Wallet.from_master_secret(seed=seed, network='BTC')
-        child_wallet = new_wallet.get_child_for_path(Wallet.HD_PATH.format(id=child))
-        return cls(child_wallet.get_private_key_hex().decode(), env=env)
+        new_wallet = network.keys.bip32_seed(seed)
+        child_wallet = new_wallet.subkey_for_path(Wallet.HD_PATH)
+        # convert secret exponent (private key) int to hex
+        key_hex = format(child_wallet.secret_exponent(), 'x')
+        return cls(key_hex, env=env)
 
     @classmethod
     def create_random_mnemonic(cls, language: MnemonicLanguage = MnemonicLanguage.ENGLISH):

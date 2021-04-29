@@ -289,7 +289,7 @@ class HttpApiClient(BaseApiClient):
         :return: API Response
 
         """
-        return self._get("markets")
+        return self._get("markets?limit=1000")
 
     def get_fees(self):
         """Gets the current trading fees settings
