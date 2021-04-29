@@ -4,7 +4,7 @@ from typing import Optional
 
 from secp256k1 import PrivateKey
 from mnemonic import Mnemonic
-from pywallet.utils.bip32 import Wallet as Bip32Wallet
+from pycoin.symbols.btc import network
 
 from binance_chain.utils.segwit_addr import address_from_public_key, decode_address
 from binance_chain.environment import BinanceEnvironment
@@ -131,9 +131,11 @@ class Wallet(BaseWallet):
         :return:
         """
         seed = Mnemonic.to_seed(mnemonic)
-        new_wallet = Bip32Wallet.from_master_secret(seed=seed, network='BTC')
-        child = new_wallet.get_child_for_path(Wallet.HD_PATH)
-        return cls(child.get_private_key_hex().decode(), env=env)
+        parent_wallet = network.keys.bip32_seed(seed)
+        child_wallet = parent_wallet.subkey_for_path(Wallet.HD_PATH)
+        # convert secret exponent (private key) int to hex
+        key_hex = format(child_wallet.secret_exponent(), 'x')
+        return cls(key_hex, env=env)
 
     @property
     def private_key(self):
