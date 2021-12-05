@@ -150,7 +150,7 @@ class Wallet(BaseWallet):
 
         seed = Mnemonic.to_seed(mnemonic, passphrase)
         new_wallet = network.keys.bip32_seed(seed)
-        child_wallet = new_wallet.subkey_for_path(Wallet.HD_PATH)
+        child_wallet = new_wallet.subkey_for_path(Wallet.HD_PATH.format(id=child))
         # convert secret exponent (private key) int to hex
         key_hex = format(child_wallet.secret_exponent(), 'x')
         return cls(key_hex, env=env)
