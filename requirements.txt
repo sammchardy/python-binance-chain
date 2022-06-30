@@ -5,4 +5,4 @@ websockets>=7.0
 secp256k1>=0.13.2
 mnemonic>=0.18
 protobuf>=3.6.1
-ujson>=5.0.0
+ujson>=1.35
