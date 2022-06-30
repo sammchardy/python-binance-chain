@@ -1,7 +1,8 @@
 pycoin>=0.90.20201031
-requests>=2.21.0
+requests>=2.11.0
 aiohttp>=3.5.4
 websockets>=7.0
 secp256k1>=0.13.2
 mnemonic>=0.18
 protobuf>=3.6.1
+ujson>=1.35
