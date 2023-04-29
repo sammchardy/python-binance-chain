@@ -4,7 +4,7 @@ from typing import Optional
 
 from secp256k1 import PrivateKey
 from mnemonic import Mnemonic
-from pywallet.utils.bip32 import Wallet as Bip32Wallet
+from pycoin.symbols.btc import network
 
 from binance_chain.utils.segwit_addr import address_from_public_key, decode_address
 from binance_chain.environment import BinanceEnvironment
@@ -23,7 +23,7 @@ class MnemonicLanguage(str, Enum):
 
 class BaseWallet:
 
-    HD_PATH = "44'/714'/0'/0/0"
+    HD_PATH = "44'/714'/0'/0/{id}"
 
     def __init__(self, env: Optional[BinanceEnvironment] = None):
         self._env = env or BinanceEnvironment.get_production_env()
@@ -103,8 +103,21 @@ class BaseWallet:
 
 
 class Wallet(BaseWallet):
+    """
+    Usage example:
 
-    HD_PATH = "44'/714'/0'/0/0"
+    m = Wallet.create_random_mnemonic() # 12 words
+    p = 'my secret passphrase' # bip39 passphrase
+
+    # Store <m> and <p> somewhere safe
+
+    wallet1 = Wallet.create_wallet_from_mnemonic(m, passphrase=p, child=0, env=testnet_env)
+    wallet2 = Wallet.create_wallet_from_mnemonic(m, passphrase=p, child=1, env=testnet_env)
+    ...
+
+    """
+
+    HD_PATH = "44'/714'/0'/0/{id}"
 
     def __init__(self, private_key, env: Optional[BinanceEnvironment] = None):
         super().__init__(env)
@@ -118,22 +131,39 @@ class Wallet(BaseWallet):
                              env: Optional[BinanceEnvironment] = None):
         """Create wallet with random mnemonic code
 
-        :return:
+        :return: initialised Wallet
         """
-        m = Mnemonic(language.value)
-        phrase = m.generate()
+        phrase = cls.create_random_mnemonic(language)
         return cls.create_wallet_from_mnemonic(phrase, env=env)
 
     @classmethod
-    def create_wallet_from_mnemonic(cls, mnemonic: str, env: Optional[BinanceEnvironment] = None):
-        """Create wallet with random mnemonic code
+    def create_wallet_from_mnemonic(cls, mnemonic: str,
+                                    passphrase: Optional[str] = '',
+                                    child: Optional[int] = 0,
+                                    env: Optional[BinanceEnvironment] = None):
+        """Create wallet from mnemonic, passphrase and child wallet id
 
-        :return:
+        :return: initialised Wallet
         """
-        seed = Mnemonic.to_seed(mnemonic)
-        new_wallet = Bip32Wallet.from_master_secret(seed=seed, network='BTC')
-        child = new_wallet.get_child_for_path(Wallet.HD_PATH)
-        return cls(child.get_private_key_hex().decode(), env=env)
+        if type(child) != int:
+            raise TypeError("Child wallet id should be of type int")
+
+        seed = Mnemonic.to_seed(mnemonic, passphrase)
+        new_wallet = network.keys.bip32_seed(seed)
+        child_wallet = new_wallet.subkey_for_path(Wallet.HD_PATH)
+        # convert secret exponent (private key) int to hex
+        key_hex = format(child_wallet.secret_exponent(), 'x')
+        return cls(key_hex, env=env)
+
+    @classmethod
+    def create_random_mnemonic(cls, language: MnemonicLanguage = MnemonicLanguage.ENGLISH):
+        """Create random mnemonic code
+
+        :return: str, mnemonic phrase
+        """
+        m = Mnemonic(language.value)
+        phrase = m.generate()
+        return phrase
 
     @property
     def private_key(self):
